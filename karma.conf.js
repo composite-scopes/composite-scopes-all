@@ -10,7 +10,7 @@ module.exports = function(config) {
 
     // frameworks to use
     // available frameworks: https://npmjs.org/browse/keyword/karma-adapter
-    frameworks: ['commonjs', 'mocha', 'chai'],
+    frameworks: ['commonjs', 'mocha', 'chai', 'sinon'],
 
     // list of files / patterns to load in the browser
     files: [
@@ -86,7 +86,7 @@ module.exports = function(config) {
 
     // start these browsers
     // available browser launchers: https://npmjs.org/browse/keyword/karma-launcher
-    browsers: ['PhantomJS', 'Chrome', 'Firefox', 'IE', 'Safari', 'Opera'],
+    browsers: [/*'PhantomJS', */'Chrome', 'Firefox'/*, 'IE', 'Safari', 'Opera'*/],
     // see below for the browsers which are run on Travis CI
     customLaunchers: {
         Chrome_no_sandbox: {
