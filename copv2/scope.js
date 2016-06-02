@@ -8,7 +8,8 @@ const events = [
 export class Layer {
     constructor() {
         this._isActive = false;
-        this.partials = [];
+        // TODO: give _partials a set semantic
+        this._partials = [];
 
         this._eventCallbacks = new Map();
         for(let eventName of events) {
@@ -18,22 +19,22 @@ export class Layer {
 
     // Managing composites
     add(partial) {
-        this.partials.push(partial);
+        this._partials.push(partial);
 
         return this;
     }
     remove(partial) {
-        var i = this.partials.indexOf(partial);
+        var i = this._partials.indexOf(partial);
         if(i >= 0) {
-            this.partials.splice(i, 1);
+            this._partials.splice(i, 1);
         }
         return this;
     }
     contains(partial) {
-        return this.partials.includes(partial);
+        return this._partials.includes(partial);
     }
     [Symbol.iterator]() {
-        return this.partials.values()
+        return this._partials.values()
     }
 
     // Scope Activation
@@ -41,7 +42,7 @@ export class Layer {
         this._eventCallbacks.get('beforeActivation').forEach(callback => callback());
 
         this._isActive = true;
-        this.partials.forEach(partial => partial.activate());
+        this._partials.forEach(partial => partial.activate());
 
         this._eventCallbacks.get('afterActivation').forEach(callback => callback());
 
@@ -51,7 +52,7 @@ export class Layer {
         this._eventCallbacks.get('beforeDeactivation').forEach(callback => callback());
 
         this._isActive = false;
-        this.partials.forEach(partial => partial.deactivate());
+        this._partials.forEach(partial => partial.deactivate());
 
         this._eventCallbacks.get('afterDeactivation').forEach(callback => callback());
 
