@@ -67,7 +67,7 @@ describe('Scope', function() {
             assert(spy.called)
         });
 
-        it('should support iterating over added partials', () => {
+        it('should support iterating over added _partials', () => {
             var partial1 = new TestPartial(),
                 partial2 = new TestPartial(),
                 partial3 = new TestPartial();
@@ -107,7 +107,7 @@ describe('Scope', function() {
             assert(callback.called)
         });
 
-        it('should call before hooks, partials, then after hooks in that order', () => {
+        it('should call before hooks, _partials, then after hooks in that order', () => {
             var beforeCallback = sinon.spy();
             var partial = new TestPartial();
             var partialActivated = getSpyOnActivate(partial);
