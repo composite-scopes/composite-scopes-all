@@ -10,9 +10,9 @@ export class Layer {
         this._isActive = false;
         this.partials = [];
 
-        this.eventCallbacks = new Map();
+        this._eventCallbacks = new Map();
         for(let eventName of events) {
-            this.eventCallbacks.set(eventName, new Set());
+            this._eventCallbacks.set(eventName, new Set());
         }
     }
 
@@ -38,18 +38,22 @@ export class Layer {
 
     // Scope Activation
     activate() {
-        this.eventCallbacks.get('beforeActivation').forEach(callback => callback());
+        this._eventCallbacks.get('beforeActivation').forEach(callback => callback());
 
         this._isActive = true;
         this.partials.forEach(partial => partial.activate());
 
-        this.eventCallbacks.get('afterActivation').forEach(callback => callback());
+        this._eventCallbacks.get('afterActivation').forEach(callback => callback());
 
         return this;
     }
     deactivate() {
+        this._eventCallbacks.get('beforeDeactivation').forEach(callback => callback());
+
         this._isActive = false;
         this.partials.forEach(partial => partial.deactivate());
+
+        this._eventCallbacks.get('afterDeactivation').forEach(callback => callback());
 
         return this;
     }
@@ -57,13 +61,13 @@ export class Layer {
 
     // Activation Hooks
     on(event, callback) {
-        var callbacks = this.eventCallbacks.get(event);
+        var callbacks = this._eventCallbacks.get(event);
         callbacks.add(callback);
 
         return this;
     }
     off(event, callback) {
-        var callbacks = this.eventCallbacks.get(event);
+        var callbacks = this._eventCallbacks.get(event);
         callbacks.delete(callback);
 
         return this;

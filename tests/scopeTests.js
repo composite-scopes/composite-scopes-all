@@ -16,7 +16,7 @@ function getSpyOnActivate(partial) {
 }
 
 describe('Scope', function() {
-    describe('Bbasic Functionality', function() {
+    describe('Basic Functionality', function() {
         var testLayer;
 
         beforeEach(() => {
@@ -107,14 +107,13 @@ describe('Scope', function() {
             assert(callback.called)
         });
 
-
         it('should call before hooks, partials, then after hooks in that order', () => {
             var beforeCallback = sinon.spy();
             var partial = new TestPartial();
             var partialActivated = getSpyOnActivate(partial);
             var afterCallback = sinon.spy();
-            
-            new Layer()
+
+            var layer = new Layer()
                 .on('beforeActivation', beforeCallback)
                 .add(partial)
                 .on('afterActivation', afterCallback)
@@ -125,6 +124,42 @@ describe('Scope', function() {
             assert(afterCallback.called);
             assert(beforeCallback.calledBefore(partialActivated));
             assert(partialActivated.calledBefore(afterCallback));
+
+            var beforeDeactivationCallback = sinon.spy();
+            var partialDeactivated = partial.deactivate = sinon.spy();
+            var afterDeactivationCallback = sinon.spy();
+
+            layer
+                .on('beforeDeactivation', beforeDeactivationCallback)
+                .on('afterDeactivation', afterDeactivationCallback)
+                .deactivate();
+
+            assert(beforeDeactivationCallback.called);
+            assert(partialDeactivated.called);
+            assert(afterDeactivationCallback.called);
+            assert(beforeDeactivationCallback.calledBefore(partialDeactivated));
+            assert(partialDeactivated.calledBefore(afterDeactivationCallback));
+        });
+
+        it('should allow to detach existing hooks', () => {
+            var layer = new Layer();
+            var callback = function() {
+                layer.off('beforeActivation', spy)
+            };
+            var spy = sinon.spy(callback);
+
+            layer
+                .on('beforeActivation', spy)
+                .activate();
+
+            assert(spy.calledOnce);
+
+            layer
+                .deactivate()
+                .activate();
+
+            // callback should not be called again
+            assert(spy.calledOnce);
         });
     })
 });
