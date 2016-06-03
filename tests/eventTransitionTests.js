@@ -73,15 +73,18 @@ describe('eventTransition', function() {
 
     (window ? it : xit)('should allow to remove an event listener', () => {
         var l1 = new Layer().activate(),
-            l2 = new Layer();
+            l2 = new Layer(),
+            callback = sinon.spy();
 
-        onEvent('click')
-            .transition([l1], [l2]);
+        onEvent('click', callback)
+            .transition([l1], [l2])
+            .uninstall();
 
         document.documentElement.click();
 
-        expect(l1.isActive()).not.to.be.true;
-        expect(l2.isActive()).to.be.true;
+        expect(callback.called).not.to.be.true;
+        expect(l1.isActive()).to.be.true;
+        expect(l2.isActive()).not.to.be.true;
 
         // TODO: with removed listeners, the layer should then be usable with other
     });
