@@ -17,8 +17,8 @@ class Case {
 class EventCapture {
     constructor(eventName, condition = () => true) {
         this.cases = [];
-
-        document.documentElement.addEventListener('click', event => {
+        this.eventType = eventName;
+        this.listener = event => {
             // check whether the given condition is fulfilled
             if(!condition(event)) {
                 return;
@@ -30,7 +30,9 @@ class EventCapture {
             if(matchingCase) {
                 matchingCase.applyTransition();
             }
-        }, true);
+        };
+
+        document.documentElement.addEventListener(eventName, this.listener, true);
     }
 
     transition(from, to) {
@@ -40,6 +42,8 @@ class EventCapture {
     }
     
     uninstall() {
+        document.documentElement.removeEventListener(this.eventType, this.listener, true);
+
         return this;
     }
 }
