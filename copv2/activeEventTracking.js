@@ -12,44 +12,36 @@ function diff(newList, oldList) {
 
 class Notifier {
     constructor(eventType, selector, callback, useCapture) {
-        this.eventType = eventType;
-        this.selector = selector;
-        this.callback = callback;
-        this.useCapture = useCapture;
+        this._eventType = eventType;
+        this._selector = selector;
+        this._callback = callback;
+        this._useCapture = useCapture;
 
-        this.selectedElements = [];
+        this._selectedElements = [];
 
-        this.installGlobalListener();
+        // install global listener
+        this._globalListener = () => this._update();
+        document.documentElement.addEventListener(this._eventType, this._globalListener, true);
 
-        this.update();
+        this._update();
     }
 
-    installGlobalListener() {
-        var i = 0;
-        this.globalListener = () => {
-            console.log('Global Listener', ++i);
-            this.update();
-        };
+    _update(newSelection = document.querySelectorAll(this._selector)) {
+        let oldSelection = this._selectedElements;
+        this._selectedElements = Array.from(newSelection);
 
-        document.documentElement.addEventListener(this.eventType, this.globalListener, true);
-    }
+        let [newItems, _, oldItems] = diff(this._selectedElements, oldSelection);
 
-    update(newSelection = document.querySelectorAll(this.selector)) {
-        let oldSelection = this.selectedElements;
-        this.selectedElements = Array.from(newSelection);
-
-        let [nju, upd, old] = diff(this.selectedElements, oldSelection);
-        console.log(nju, upd, old);
-        nju.forEach(item => item.addEventListener(this.eventType, this.callback, this.useCapture));
-        old.forEach(item => item.removeEventListener(this.eventType, this.callback, this.useCapture));
+        newItems.forEach(item => item.addEventListener(this._eventType, this._callback, this._useCapture));
+        oldItems.forEach(item => item.removeEventListener(this._eventType, this._callback, this._useCapture));
     }
 
     uninstall() {
-        document.documentElement.removeEventListener(this.eventType, this.globalListener, true);
-        this.update([]);
+        document.documentElement.removeEventListener(this._eventType, this._globalListener, true);
+        this._update([]);
     }
 }
 
-export function notify(...args) {
+export default function notify(...args) {
     return new Notifier(...args);
 }
