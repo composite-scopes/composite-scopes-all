@@ -1,6 +1,6 @@
 'use strict';
 
-import { notify } from '../copv2/activeEventTracking.js';
+import notify from './../copv2/activeEventTracking.js';
 
 describe('Active Event Tracking', function() {
 
