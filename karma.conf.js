@@ -15,11 +15,9 @@ module.exports = function(config) {
     // list of files / patterns to load in the browser
     files: [
       'node_modules/babel-polyfill/dist/polyfill.js',
-      'miniprototype.js',
-      'MiniBase.js',
-      'Flatten.js',
-      'copv2/*.js',
-      'tests/**/*Tests.js'
+      'copv2/**/*.js',
+      'tests/**/*Tests.js',
+      'tests/**/*Fixtures.js'
     ],
 
 
@@ -31,12 +29,8 @@ module.exports = function(config) {
     // preprocess matching files before serving them to the browser
     // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
     preprocessors: {
-      'miniprototype.js': ['babel', 'commonjs'],
-      'MiniBase.js': ['babel', 'commonjs'],
-      'Layers.js': ['babel', 'commonjs'],
-      'Flatten.js': ['babel', 'commonjs'],
-      'copv2/*.js': ['babel', 'commonjs'],
-      'tests/**/*.js': ['babel', 'commonjs'],
+      'copv2/**/*.js': ['babel', 'commonjs'],
+      'tests/**/*.js': ['babel', 'commonjs']
     },
 
     babelPreprocessor: {
