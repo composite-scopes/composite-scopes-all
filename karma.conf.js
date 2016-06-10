@@ -87,7 +87,7 @@ module.exports = function(config) {
 
     // start these browsers
     // available browser launchers: https://npmjs.org/browse/keyword/karma-launcher
-    browsers: [/*'PhantomJS', */'Chrome', 'Firefox'/*, 'IE', 'Safari', 'Opera'*/],
+    browsers: [/*'PhantomJS', */'Chrome'/*, 'Firefox', 'IE', 'Safari', 'Opera'*/],
     // see below for the browsers which are run on Travis CI
     customLaunchers: {
         Chrome_no_sandbox: {
@@ -106,7 +106,7 @@ module.exports = function(config) {
     concurrency: Infinity
   };
   if (process.env.TRAVIS) {
-      configuration.browsers = ['Chrome_no_sandbox', 'Firefox'];
+      configuration.browsers = ['Chrome_no_sandbox'/*, 'Firefox'*/];
   }
   config.set(configuration);
 }
