@@ -1,67 +1,56 @@
 'use strict';
 
-import { Scope } from '../copv2/scope.js';
+import { Scope, Partial } from '../copv2/scope.js';
 
-class TestPartial {
-    constructor() {}
-    
-    activate() {}
-    deactivate() {}
-    activateFor() {}
-    deactivateFor() {}
-}
-
-class SpyPartial {
+class SpyPartial extends Partial {
     constructor() {
-        this.activate = sinon.spy();
-        this.deactivate = sinon.spy();
-        this.activateFor = sinon.spy();
-        this.deactivateFor = sinon.spy();
+        super();
+
+        this.activate = sinon.spy(this.activate);
+        this.deactivate = sinon.spy(this.deactivate);
+        this.activateFor = sinon.spy(this.activateFor);
+        this.deactivateFor = sinon.spy(this.deactivateFor);
     }
 }
 
-function getSpyOnActivate(partial) {
-    return partial.activate = sinon.spy();
-}
-
-describe('Scope', function() {
-    describe('Basic Functionality', function() {
-        var testLayer;
+describe('Composite Scopes', () => {
+    describe('Basic Functionality', () => {
+        let scope;
 
         beforeEach(() => {
-            testLayer = new Scope();
+            scope = new Scope();
         });
 
         it('should delegate a basic activation', () => {
-            var partial = new SpyPartial();
+            let partial = new SpyPartial();
 
-            testLayer
+            scope
                 .add(partial)
                 .activate();
 
             expect(partial.activate.calledOnce).to.be.true;
 
-            testLayer.deactivate();
+            scope.deactivate();
             expect(partial.deactivate.calledOnce).to.be.true;
         });
 
         it('does not activate an activated scope again', () => {
-            var partial = new SpyPartial();
+            let partial = new SpyPartial();
 
-            testLayer
+            scope
                 .add(partial)
                 .activate();
 
             expect(partial.activate.calledOnce).to.be.true;
 
-            testLayer.activate();
+            scope.activate();
             expect(partial.activate.calledOnce).to.be.true;
         });
 
         it('does not activate an activated scope again', () => {
-            var partial = new SpyPartial();
+            let partial = new SpyPartial();
 
-            testLayer
+            scope
                 .add(partial)
                 .activate()
                 .deactivate()
@@ -71,9 +60,9 @@ describe('Scope', function() {
         });
 
         it('ensures that partials have a set semantic', () => {
-            var partial = new SpyPartial();
+            let partial = new SpyPartial();
 
-            testLayer
+            scope
                 .add(partial)
                 .add(partial)
                 .activate();
@@ -83,49 +72,48 @@ describe('Scope', function() {
 
         // TODO: What about edge cases like adding an existing element or removing a non-existing one?
         it('manage contained objects', () => {
-            var partial1 = {},
+            let partial1 = {},
                 partial2 = {},
                 partial3 = {};
 
-            testLayer
+            scope
                 .add(partial1)
                 .add(partial2);
 
-            expect(testLayer.contains(partial1)).to.be.true;
-            expect(testLayer.contains(partial2)).to.be.true;
-            expect(testLayer.contains(partial3)).not.to.be.true;
+            expect(scope.contains(partial1)).to.be.true;
+            expect(scope.contains(partial2)).to.be.true;
+            expect(scope.contains(partial3)).not.to.be.true;
 
-            testLayer.remove(partial2);
+            scope.remove(partial2);
 
-            expect(testLayer.contains(partial1)).to.be.true;
-            expect(testLayer.contains(partial2)).not.to.be.true;
-            expect(testLayer.contains(partial3)).not.to.be.true;
+            expect(scope.contains(partial1)).to.be.true;
+            expect(scope.contains(partial2)).not.to.be.true;
+            expect(scope.contains(partial3)).not.to.be.true;
         });
 
         it('should support nested scopes', () => {
-            var partial = new TestPartial();
-            var spy = getSpyOnActivate(partial);
+            let partial = new SpyPartial();
 
-            testLayer
-                .add(new Scope()
+            scope
+                .add((new Scope())
                     .add(partial))
                 .activate();
 
-            assert(spy.called)
+            assert(partial.activate.calledOnce);
         });
 
         it('should support iterating over added _partials', () => {
-            var partial1 = new TestPartial(),
-                partial2 = new TestPartial(),
-                partial3 = new TestPartial();
-            var spy = sinon.spy();
+            let partial1 = new Partial(),
+                partial2 = new Partial(),
+                partial3 = new Partial(),
+                spy = sinon.spy();
 
-            testLayer
+            scope
                 .add(partial1)
                 .add(partial2)
                 .add(partial3);
 
-            for(let partial of testLayer) {
+            for(let partial of scope) {
                 spy(partial);
             }
 
@@ -135,22 +123,17 @@ describe('Scope', function() {
         });
 
         it('allows simple reflection via isActive', () => {
-            expect(testLayer.isActive()).not.to.be.true;
-            testLayer.activate();
-            expect(testLayer.isActive()).to.be.true;
-            testLayer.deactivate();
-            expect(testLayer.isActive()).not.to.be.true;
+            expect(scope.isActive()).not.to.be.true;
+            scope.activate();
+            expect(scope.isActive()).to.be.true;
+            scope.deactivate();
+            expect(scope.isActive()).not.to.be.true;
         });
 
-        describe('Instance-specific (de-)activation', function() {
-            var scope;
-
-            beforeEach(() => {
-                scope = new Scope();
-            });
+        describe('Instance-specific (de-)activation', () => {
 
             it('should delegate a basic activation', () => {
-                var partial = new SpyPartial(),
+                let partial = new SpyPartial(),
                     obj = {};
 
                 scope
@@ -161,7 +144,7 @@ describe('Scope', function() {
             });
 
             it('consequtive (de-)activations are no-ops', () => {
-                var partial = new SpyPartial(),
+                let partial = new SpyPartial(),
                     obj = {};
 
                 scope
@@ -179,7 +162,7 @@ describe('Scope', function() {
             });
 
             it('should support nested scopes', () => {
-                var partial = new SpyPartial(),
+                let partial = new SpyPartial(),
                     obj = {};
 
                 scope
@@ -191,7 +174,8 @@ describe('Scope', function() {
             });
 
             it('allows simple reflection via isActiveFor', () => {
-                let obj = {}, obj2 = {};
+                let obj = {},
+                    obj2 = {};
 
                 expect(scope.isActiveFor(obj)).to.be.false;
                 expect(scope.isActiveFor(obj2)).to.be.false;
@@ -211,9 +195,9 @@ describe('Scope', function() {
         });
     });
 
-    describe('Activation Hooks', function() {
+    describe('Activation Hooks', () => {
         it('should notify on basic activation', () => {
-            var callback = sinon.spy();
+            let callback = sinon.spy();
 
             new Scope()
                 .on('beforeActivation', callback)
@@ -223,7 +207,7 @@ describe('Scope', function() {
         });
 
         it('activating an already activated scope should not trigger an additional notification', () => {
-            var callback = sinon.spy();
+            let callback = sinon.spy();
 
             new Scope()
                 .on('beforeActivation', callback)
@@ -234,26 +218,24 @@ describe('Scope', function() {
         });
 
         it('should call before hooks, _partials, then after hooks in that order', () => {
-            var beforeCallback = sinon.spy();
-            var partial = new TestPartial();
-            var partialActivated = getSpyOnActivate(partial);
-            var afterCallback = sinon.spy();
+            let beforeCallback = sinon.spy(),
+                partial = new SpyPartial(),
+                afterCallback = sinon.spy();
 
-            var layer = new Scope()
+            let layer = new Scope()
                 .on('beforeActivation', beforeCallback)
                 .add(partial)
                 .on('afterActivation', afterCallback)
                 .activate();
 
             assert(beforeCallback.called);
-            assert(partialActivated.called);
+            assert(partial.activate.called);
             assert(afterCallback.called);
-            assert(beforeCallback.calledBefore(partialActivated));
-            assert(partialActivated.calledBefore(afterCallback));
+            assert(beforeCallback.calledBefore(partial.activate));
+            assert(partial.activate.calledBefore(afterCallback));
 
-            var beforeDeactivationCallback = sinon.spy();
-            var partialDeactivated = partial.deactivate = sinon.spy();
-            var afterDeactivationCallback = sinon.spy();
+            let beforeDeactivationCallback = sinon.spy(),
+                afterDeactivationCallback = sinon.spy();
 
             layer
                 .on('beforeDeactivation', beforeDeactivationCallback)
@@ -261,26 +243,27 @@ describe('Scope', function() {
                 .deactivate();
 
             assert(beforeDeactivationCallback.called);
-            assert(partialDeactivated.called);
+            assert(partial.deactivate.called);
             assert(afterDeactivationCallback.called);
-            assert(beforeDeactivationCallback.calledBefore(partialDeactivated));
-            assert(partialDeactivated.calledBefore(afterDeactivationCallback));
+            assert(beforeDeactivationCallback.calledBefore(partial.deactivate));
+            assert(partial.deactivate.calledBefore(afterDeactivationCallback));
         });
 
         it('should allow to detach existing hooks', () => {
-            var layer = new Scope();
-            var callback = function() {
-                layer.off('beforeActivation', spy)
-            };
-            var spy = sinon.spy(callback);
+            function callback() {
+                scope.off('beforeActivation', spy)
+            }
 
-            layer
+            let scope = new Scope(),
+                spy = sinon.spy(callback);
+
+            scope
                 .on('beforeActivation', spy)
                 .activate();
 
             assert(spy.calledOnce);
 
-            layer
+            scope
                 .deactivate()
                 .activate();
 
@@ -288,7 +271,7 @@ describe('Scope', function() {
             assert(spy.calledOnce);
         });
 
-        describe('Instance-specific notifications', function() {
+        describe('Instance-specific notifications', () => {
             it('should notify on basic activation', () => {
                 let obj = {},
                     callback = sinon.spy();
@@ -301,12 +284,12 @@ describe('Scope', function() {
             });
 
             it('should call before hooks, _partials, then after hooks in that order', () => {
-                let obj = {};
-                var beforeCallback = sinon.spy();
-                var partial = new SpyPartial();
-                var afterCallback = sinon.spy();
+                let obj = {},
+                    beforeCallback = sinon.spy(),
+                    partial = new SpyPartial(),
+                    afterCallback = sinon.spy();
 
-                var layer = new Scope()
+                let layer = new Scope()
                     .on('beforeActivationFor', beforeCallback)
                     .add(partial)
                     .on('afterActivationFor', afterCallback)
@@ -318,8 +301,8 @@ describe('Scope', function() {
                 assert(beforeCallback.withArgs(obj).calledBefore(partial.activateFor.withArgs(obj)));
                 assert(partial.activateFor.withArgs(obj).calledBefore(afterCallback.withArgs(obj)));
 
-                var beforeDeactivationCallback = sinon.spy();
-                var afterDeactivationCallback = sinon.spy();
+                let beforeDeactivationCallback = sinon.spy(),
+                    afterDeactivationCallback = sinon.spy();
 
                 layer
                     .on('beforeDeactivationFor', beforeDeactivationCallback)
