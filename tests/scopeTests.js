@@ -47,23 +47,23 @@ describe('Scope', function() {
 
         // TODO: What about edge cases like adding an existing element or removing a non-existing one?
         it('manage contained objects', () => {
-            var obj1 = {},
-                obj2 = {},
-                obj3 = {};
+            var partial1 = {},
+                partial2 = {},
+                partial3 = {};
 
             testLayer
-                .add(obj1)
-                .add(obj2);
+                .add(partial1)
+                .add(partial2);
 
-            expect(testLayer.contains(obj1)).to.be.true;
-            expect(testLayer.contains(obj2)).to.be.true;
-            expect(testLayer.contains(obj3)).not.to.be.true;
+            expect(testLayer.contains(partial1)).to.be.true;
+            expect(testLayer.contains(partial2)).to.be.true;
+            expect(testLayer.contains(partial3)).not.to.be.true;
 
-            testLayer.remove(obj2);
+            testLayer.remove(partial2);
 
-            expect(testLayer.contains(obj1)).to.be.true;
-            expect(testLayer.contains(obj2)).not.to.be.true;
-            expect(testLayer.contains(obj3)).not.to.be.true;
+            expect(testLayer.contains(partial1)).to.be.true;
+            expect(testLayer.contains(partial2)).not.to.be.true;
+            expect(testLayer.contains(partial3)).not.to.be.true;
         });
 
         it('should support nested scopes', () => {
@@ -122,27 +122,6 @@ describe('Scope', function() {
                     .activateFor(obj);
 
                 expect(partial.activateFor.calledWith(obj)).to.be.true;
-            });
-
-            // TODO: What about edge cases like adding an existing element or removing a non-existing one?
-            xit('manage contained objects', () => {
-                var obj1 = {},
-                    obj2 = {},
-                    obj3 = {};
-
-                scope
-                    .add(obj1)
-                    .add(obj2);
-
-                expect(scope.contains(obj1)).to.be.true;
-                expect(scope.contains(obj2)).to.be.true;
-                expect(scope.contains(obj3)).not.to.be.true;
-
-                scope.remove(obj2);
-
-                expect(scope.contains(obj1)).to.be.true;
-                expect(scope.contains(obj2)).not.to.be.true;
-                expect(scope.contains(obj3)).not.to.be.true;
             });
 
             xit('should support nested scopes', () => {
