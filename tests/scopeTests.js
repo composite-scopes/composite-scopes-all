@@ -203,28 +203,7 @@ describe('Scope', function() {
         });
 
         it('should allow to detach existing hooks', () => {
-            var layer = new Layer();
-            var callback = function() {
-                layer.off('beforeActivation', spy)
-            };
-            var spy = sinon.spy(callback);
-
-            layer
-                .on('beforeActivation', spy)
-                .activate();
-
-            assert(spy.calledOnce);
-
-            layer
-                .deactivate()
-                .activate();
-
-            // callback should not be called again
-            assert(spy.calledOnce);
-        });
-
-        it('should allow to detach existing hooks', () => {
-            var layer = new Layer();
+            var layer = new Scope();
             var callback = function() {
                 layer.off('beforeActivation', spy)
             };
@@ -245,91 +224,48 @@ describe('Scope', function() {
         });
 
         describe('Instance-specific notifications', function() {
-            xit('should notify on basic activation', () => {
+            it('should notify on basic activation', () => {
                 let obj = {},
                     callback = sinon.spy();
 
-                new Layer()
+                new Scope()
                     .on('beforeActivationFor', callback)
                     .activateFor(obj);
 
-                assert(callback.called)
+                expect(callback.withArgs(obj).calledOnce).to.be.true;
             });
 
             it('should call before hooks, _partials, then after hooks in that order', () => {
+                let obj = {};
                 var beforeCallback = sinon.spy();
-                var partial = new TestPartial();
-                var partialActivated = getSpyOnActivate(partial);
+                var partial = new SpyPartial();
                 var afterCallback = sinon.spy();
 
-                var layer = new Layer()
-                    .on('beforeActivation', beforeCallback)
+                var layer = new Scope()
+                    .on('beforeActivationFor', beforeCallback)
                     .add(partial)
-                    .on('afterActivation', afterCallback)
-                    .activate();
+                    .on('afterActivationFor', afterCallback)
+                    .activateFor(obj);
 
-                assert(beforeCallback.called);
-                assert(partialActivated.called);
-                assert(afterCallback.called);
-                assert(beforeCallback.calledBefore(partialActivated));
-                assert(partialActivated.calledBefore(afterCallback));
+                expect(beforeCallback.withArgs(obj).calledOnce).to.be.true;
+                expect(partial.activateFor.withArgs(obj).calledOnce).to.be.true;
+                expect(afterCallback.withArgs(obj).calledOnce).to.be.true;
+                assert(beforeCallback.withArgs(obj).calledBefore(partial.activateFor.withArgs(obj)));
+                assert(partial.activateFor.withArgs(obj).calledBefore(afterCallback.withArgs(obj)));
 
                 var beforeDeactivationCallback = sinon.spy();
-                var partialDeactivated = partial.deactivate = sinon.spy();
                 var afterDeactivationCallback = sinon.spy();
 
                 layer
-                    .on('beforeDeactivation', beforeDeactivationCallback)
-                    .on('afterDeactivation', afterDeactivationCallback)
-                    .deactivate();
+                    .on('beforeDeactivationFor', beforeDeactivationCallback)
+                    .on('afterDeactivationFor', afterDeactivationCallback)
+                    .deactivateFor(obj);
 
-                assert(beforeDeactivationCallback.called);
-                assert(partialDeactivated.called);
-                assert(afterDeactivationCallback.called);
-                assert(beforeDeactivationCallback.calledBefore(partialDeactivated));
-                assert(partialDeactivated.calledBefore(afterDeactivationCallback));
-            });
-
-            it('should allow to detach existing hooks', () => {
-                var layer = new Layer();
-                var callback = function() {
-                    layer.off('beforeActivation', spy)
-                };
-                var spy = sinon.spy(callback);
-
-                layer
-                    .on('beforeActivation', spy)
-                    .activate();
-
-                assert(spy.calledOnce);
-
-                layer
-                    .deactivate()
-                    .activate();
-
-                // callback should not be called again
-                assert(spy.calledOnce);
-            });
-
-            it('should allow to detach existing hooks', () => {
-                var layer = new Layer();
-                var callback = function() {
-                    layer.off('beforeActivation', spy)
-                };
-                var spy = sinon.spy(callback);
-
-                layer
-                    .on('beforeActivation', spy)
-                    .activate();
-
-                assert(spy.calledOnce);
-
-                layer
-                    .deactivate()
-                    .activate();
-
-                // callback should not be called again
-                assert(spy.calledOnce);
+                expect(beforeDeactivationCallback.withArgs(obj).calledOnce).to.be.true;
+                expect(partial.deactivateFor.withArgs(obj).calledOnce).to.be.true;
+                expect(afterDeactivationCallback.withArgs(obj).calledOnce).to.be.true;
+                assert(beforeDeactivationCallback.calledBefore(partial.deactivateFor));
+                assert(partial.deactivateFor.calledBefore(afterDeactivationCallback));
             });
         });
     });
