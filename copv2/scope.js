@@ -7,6 +7,8 @@ const events = [
 
 export class Layer {
     constructor() {
+        this.activatedItems = new Set();
+
         this._isActive = false;
         // TODO: give _partials a set semantic
         this._partials = [];
@@ -75,7 +77,10 @@ export class Layer {
     }
 
     // TODO: Instance-based activation
-    activateFor() {}
+    activateFor(obj) {
+        this.activatedItems.add(obj);
+        this._partials.forEach(partial => partial.activateFor(obj));
+    }
     deactivateFor() {}
     isActiveFor() {}
 }
