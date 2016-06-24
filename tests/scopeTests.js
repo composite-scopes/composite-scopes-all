@@ -2,6 +2,8 @@
 
 import { Layer } from '../copv2/scope.js';
 
+let Scope = Layer;
+
 class TestPartial {
     constructor() {}
     
@@ -9,6 +11,15 @@ class TestPartial {
     deactivate() {}
     activateFor() {}
     deactivateFor() {}
+}
+
+class SpyPartial {
+    constructor() {
+        this.activate = sinon.spy();
+        this.deactivate = sinon.spy();
+        this.activateFor = sinon.spy();
+        this.deactivateFor = sinon.spy();
+    }
 }
 
 function getSpyOnActivate(partial) {
@@ -94,6 +105,86 @@ describe('Scope', function() {
             testLayer.deactivate();
             expect(testLayer.isActive()).not.to.be.true;
         });
+
+        describe('Instance-specific (de-)activation', function() {
+            var scope;
+
+            beforeEach(() => {
+                scope = new Scope();
+            });
+
+            it('should delegate a basic activation', () => {
+                var partial = new SpyPartial(),
+                    obj = {};
+
+                scope
+                    .add(partial)
+                    .activateFor(obj);
+
+                expect(partial.activateFor.calledWith(obj)).to.be.true;
+            });
+
+            // TODO: What about edge cases like adding an existing element or removing a non-existing one?
+            xit('manage contained objects', () => {
+                var obj1 = {},
+                    obj2 = {},
+                    obj3 = {};
+
+                scope
+                    .add(obj1)
+                    .add(obj2);
+
+                expect(scope.contains(obj1)).to.be.true;
+                expect(scope.contains(obj2)).to.be.true;
+                expect(scope.contains(obj3)).not.to.be.true;
+
+                scope.remove(obj2);
+
+                expect(scope.contains(obj1)).to.be.true;
+                expect(scope.contains(obj2)).not.to.be.true;
+                expect(scope.contains(obj3)).not.to.be.true;
+            });
+
+            xit('should support nested scopes', () => {
+                var partial = new TestPartial();
+                var spy = getSpyOnActivate(partial);
+
+                scope
+                    .add(new Layer()
+                        .add(partial))
+                    .activate();
+
+                assert(spy.called)
+            });
+
+            xit('should support iterating over added _partials', () => {
+                var partial1 = new TestPartial(),
+                    partial2 = new TestPartial(),
+                    partial3 = new TestPartial();
+                var spy = sinon.spy();
+
+                scope
+                    .add(partial1)
+                    .add(partial2)
+                    .add(partial3);
+
+                for(let partial of scope) {
+                    spy(partial);
+                }
+
+                assert(spy.calledWith(partial1));
+                assert(spy.calledWith(partial2));
+                assert(spy.calledWith(partial3));
+            });
+
+            xit('allows simple reflection via isActive', () => {
+                expect(scope.isActive()).not.to.be.true;
+                scope.activate();
+                expect(scope.isActive()).to.be.true;
+                scope.deactivate();
+                expect(scope.isActive()).not.to.be.true;
+            });
+        });
     });
 
     describe('Activation Hooks', function() {
@@ -161,5 +252,26 @@ describe('Scope', function() {
             // callback should not be called again
             assert(spy.calledOnce);
         });
-    })
+
+        it('should allow to detach existing hooks', () => {
+            var layer = new Layer();
+            var callback = function() {
+                layer.off('beforeActivation', spy)
+            };
+            var spy = sinon.spy(callback);
+
+            layer
+                .on('beforeActivation', spy)
+                .activate();
+
+            assert(spy.calledOnce);
+
+            layer
+                .deactivate()
+                .activate();
+
+            // callback should not be called again
+            assert(spy.calledOnce);
+        });
+    });
 });
