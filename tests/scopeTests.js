@@ -121,53 +121,44 @@ describe('Scope', function() {
                     .add(partial)
                     .activateFor(obj);
 
-                expect(partial.activateFor.calledWith(obj)).to.be.true;
+                expect(partial.activateFor.withArgs(obj).calledOnce).to.be.true;
             });
 
-            xit('should support nested scopes', () => {
-                var partial = new TestPartial();
-                var spy = getSpyOnActivate(partial);
+            it('should support nested scopes', () => {
+                var partial = new SpyPartial(),
+                    obj = {};
 
                 scope
-                    .add(new Layer()
+                    .add(new Scope()
                         .add(partial))
-                    .activate();
+                    .activateFor(obj);
 
-                assert(spy.called)
+                expect(partial.activateFor.withArgs(obj).calledOnce).to.be.true;
             });
 
-            xit('should support iterating over added _partials', () => {
-                var partial1 = new TestPartial(),
-                    partial2 = new TestPartial(),
-                    partial3 = new TestPartial();
-                var spy = sinon.spy();
+            it('allows simple reflection via isActiveFor', () => {
+                let obj = {}, obj2 = {};
 
-                scope
-                    .add(partial1)
-                    .add(partial2)
-                    .add(partial3);
+                expect(scope.isActiveFor(obj)).to.be.false;
+                expect(scope.isActiveFor(obj2)).to.be.false;
 
-                for(let partial of scope) {
-                    spy(partial);
-                }
+                scope.activateFor(obj);
+                expect(scope.isActiveFor(obj)).to.be.true;
+                expect(scope.isActiveFor(obj2)).to.be.false;
 
-                assert(spy.calledWith(partial1));
-                assert(spy.calledWith(partial2));
-                assert(spy.calledWith(partial3));
-            });
+                scope.activateFor(obj2);
+                expect(scope.isActiveFor(obj)).to.be.true;
+                expect(scope.isActiveFor(obj2)).to.be.true;
 
-            xit('allows simple reflection via isActive', () => {
-                expect(scope.isActive()).not.to.be.true;
-                scope.activate();
-                expect(scope.isActive()).to.be.true;
-                scope.deactivate();
-                expect(scope.isActive()).not.to.be.true;
+                scope.deactivateFor(obj);
+                expect(scope.isActiveFor(obj)).to.be.false;
+                expect(scope.isActiveFor(obj2)).to.be.true;
             });
         });
     });
 
     describe('Activation Hooks', function() {
-        it('should delegate a basic activation', () => {
+        it('should notify on basic activation', () => {
             var callback = sinon.spy();
 
             new Layer()
@@ -251,6 +242,95 @@ describe('Scope', function() {
 
             // callback should not be called again
             assert(spy.calledOnce);
+        });
+
+        describe('Instance-specific notifications', function() {
+            xit('should notify on basic activation', () => {
+                let obj = {},
+                    callback = sinon.spy();
+
+                new Layer()
+                    .on('beforeActivationFor', callback)
+                    .activateFor(obj);
+
+                assert(callback.called)
+            });
+
+            it('should call before hooks, _partials, then after hooks in that order', () => {
+                var beforeCallback = sinon.spy();
+                var partial = new TestPartial();
+                var partialActivated = getSpyOnActivate(partial);
+                var afterCallback = sinon.spy();
+
+                var layer = new Layer()
+                    .on('beforeActivation', beforeCallback)
+                    .add(partial)
+                    .on('afterActivation', afterCallback)
+                    .activate();
+
+                assert(beforeCallback.called);
+                assert(partialActivated.called);
+                assert(afterCallback.called);
+                assert(beforeCallback.calledBefore(partialActivated));
+                assert(partialActivated.calledBefore(afterCallback));
+
+                var beforeDeactivationCallback = sinon.spy();
+                var partialDeactivated = partial.deactivate = sinon.spy();
+                var afterDeactivationCallback = sinon.spy();
+
+                layer
+                    .on('beforeDeactivation', beforeDeactivationCallback)
+                    .on('afterDeactivation', afterDeactivationCallback)
+                    .deactivate();
+
+                assert(beforeDeactivationCallback.called);
+                assert(partialDeactivated.called);
+                assert(afterDeactivationCallback.called);
+                assert(beforeDeactivationCallback.calledBefore(partialDeactivated));
+                assert(partialDeactivated.calledBefore(afterDeactivationCallback));
+            });
+
+            it('should allow to detach existing hooks', () => {
+                var layer = new Layer();
+                var callback = function() {
+                    layer.off('beforeActivation', spy)
+                };
+                var spy = sinon.spy(callback);
+
+                layer
+                    .on('beforeActivation', spy)
+                    .activate();
+
+                assert(spy.calledOnce);
+
+                layer
+                    .deactivate()
+                    .activate();
+
+                // callback should not be called again
+                assert(spy.calledOnce);
+            });
+
+            it('should allow to detach existing hooks', () => {
+                var layer = new Layer();
+                var callback = function() {
+                    layer.off('beforeActivation', spy)
+                };
+                var spy = sinon.spy(callback);
+
+                layer
+                    .on('beforeActivation', spy)
+                    .activate();
+
+                assert(spy.calledOnce);
+
+                layer
+                    .deactivate()
+                    .activate();
+
+                // callback should not be called again
+                assert(spy.calledOnce);
+            });
         });
     });
 });

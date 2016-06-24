@@ -76,11 +76,17 @@ export class Layer {
         return this;
     }
 
-    // TODO: Instance-based activation
+    // TODO: edge cases like activating an activated obj
     activateFor(obj) {
         this.activatedItems.add(obj);
         this._partials.forEach(partial => partial.activateFor(obj));
     }
-    deactivateFor() {}
-    isActiveFor() {}
+    // TODO: edge cases like deactivating a not activated obj
+    deactivateFor(obj) {
+        this.activatedItems.delete(obj);
+        this._partials.forEach(partial => partial.deactivateFor(obj));
+    }
+    isActiveFor(obj) {
+        return this.activatedItems.has(obj);
+    }
 }
