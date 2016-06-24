@@ -10,11 +10,20 @@ const events = [
     'afterDeactivationFor'
 ];
 
-export class Scope {
+export class Partial {
+    activate() {}
+    deactivate() {}
+    activateFor() {}
+    deactivateFor() {}
+}
+
+export class Scope extends Partial {
     constructor() {
+        super();
+
         this.activatedItems = new Set();
 
-        
+
         this._isActive = false;
         this._partials = new Set();
 
