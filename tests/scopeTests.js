@@ -151,6 +151,24 @@ describe('Scope', function() {
                 expect(partial.activateFor.withArgs(obj).calledOnce).to.be.true;
             });
 
+            it('consequtive (de-)activations are no-ops', () => {
+                var partial = new SpyPartial(),
+                    obj = {};
+
+                scope
+                    .add(partial)
+                    .activateFor(obj)
+                    .activateFor(obj);
+
+                expect(partial.activateFor.withArgs(obj).calledOnce).to.be.true;
+
+                scope
+                    .deactivateFor(obj)
+                    .deactivateFor(obj);
+
+                expect(partial.deactivateFor.withArgs(obj).calledOnce).to.be.true;
+            });
+
             it('should support nested scopes', () => {
                 var partial = new SpyPartial(),
                     obj = {};
@@ -192,7 +210,18 @@ describe('Scope', function() {
                 .on('beforeActivation', callback)
                 .activate();
 
-            assert(callback.called)
+            assert(callback.calledOnce);
+        });
+
+        it('activating an already activated scope should not trigger an additional notification', () => {
+            var callback = sinon.spy();
+
+            new Layer()
+                .on('beforeActivation', callback)
+                .activate()
+                .activate();
+
+            assert(callback.calledOnce);
         });
 
         it('should call before hooks, _partials, then after hooks in that order', () => {

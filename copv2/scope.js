@@ -87,26 +87,28 @@ export class Layer {
         return this;
     }
 
-    // TODO: edge cases like activating an activated obj
-    // TODO: then, events should also not be fired
     activateFor(obj) {
-        this._eventCallbacks.get('beforeActivationFor').forEach(callback => callback(obj));
+        if(!this.isActiveFor(obj)) {
+            this._eventCallbacks.get('beforeActivationFor').forEach(callback => callback(obj));
 
-        this.activatedItems.add(obj);
-        this._partials.forEach(partial => partial.activateFor(obj));
+            this.activatedItems.add(obj);
+            this._partials.forEach(partial => partial.activateFor(obj));
 
-        this._eventCallbacks.get('afterActivationFor').forEach(callback => callback(obj));
+            this._eventCallbacks.get('afterActivationFor').forEach(callback => callback(obj));
+        }
 
         return this;
     }
-    // TODO: edge cases like deactivating a not activated obj
+
     deactivateFor(obj) {
-        this._eventCallbacks.get('beforeDeactivationFor').forEach(callback => callback(obj));
+        if(this.isActiveFor(obj)) {
+            this._eventCallbacks.get('beforeDeactivationFor').forEach(callback => callback(obj));
 
-        this.activatedItems.delete(obj);
-        this._partials.forEach(partial => partial.deactivateFor(obj));
+            this.activatedItems.delete(obj);
+            this._partials.forEach(partial => partial.deactivateFor(obj));
 
-        this._eventCallbacks.get('afterDeactivationFor').forEach(callback => callback(obj));
+            this._eventCallbacks.get('afterDeactivationFor').forEach(callback => callback(obj));
+        }
 
         return this;
     }
