@@ -35,14 +35,41 @@ describe('Scope', function() {
         });
 
         it('should delegate a basic activation', () => {
-            var partial = new TestPartial();
-            var spy = getSpyOnActivate(partial);
+            var partial = new SpyPartial();
 
             testLayer
                 .add(partial)
                 .activate();
 
-            assert(spy.called)
+            expect(partial.activate.calledOnce).to.be.true;
+
+            testLayer.deactivate();
+            expect(partial.deactivate.calledOnce).to.be.true;
+        });
+
+        it('does not activate an activated scope again', () => {
+            var partial = new SpyPartial();
+
+            testLayer
+                .add(partial)
+                .activate();
+
+            expect(partial.activate.calledOnce).to.be.true;
+
+            testLayer.activate();
+            expect(partial.activate.calledOnce).to.be.true;
+        });
+
+        it('does not activate an activated scope again', () => {
+            var partial = new SpyPartial();
+
+            testLayer
+                .add(partial)
+                .activate()
+                .deactivate()
+                .deactivate();
+
+            expect(partial.deactivate.calledOnce).to.be.true;
         });
 
         // TODO: What about edge cases like adding an existing element or removing a non-existing one?
