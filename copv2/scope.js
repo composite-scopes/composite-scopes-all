@@ -10,10 +10,11 @@ const events = [
     'afterDeactivationFor'
 ];
 
-export class Layer {
+export class Scope {
     constructor() {
         this.activatedItems = new Set();
 
+        
         this._isActive = false;
         this._partials = new Set();
 
