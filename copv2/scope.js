@@ -18,6 +18,7 @@ export class Layer {
         // TODO: give _partials a set semantic
         this._partials = [];
 
+        // TODO: use a dedicated event listener library
         this._eventCallbacks = new Map();
         for(let eventName of events) {
             this._eventCallbacks.set(eventName, new Set());
@@ -26,6 +27,7 @@ export class Layer {
 
     // Managing composites
     add(partial) {
+        // TODO: test for adding a partial multiple times; this should still only cause 1 activation
         this._partials.push(partial);
 
         return this;
@@ -46,22 +48,26 @@ export class Layer {
 
     // Scope Activation
     activate() {
-        this._eventCallbacks.get('beforeActivation').forEach(callback => callback());
+        if(!this.isActive()) {
+            this._eventCallbacks.get('beforeActivation').forEach(callback => callback());
 
-        this._isActive = true;
-        this._partials.forEach(partial => partial.activate());
+            this._isActive = true;
+            this._partials.forEach(partial => partial.activate());
 
-        this._eventCallbacks.get('afterActivation').forEach(callback => callback());
+            this._eventCallbacks.get('afterActivation').forEach(callback => callback());
+        }
 
         return this;
     }
     deactivate() {
-        this._eventCallbacks.get('beforeDeactivation').forEach(callback => callback());
+        if(this.isActive()) {
+            this._eventCallbacks.get('beforeDeactivation').forEach(callback => callback());
 
-        this._isActive = false;
-        this._partials.forEach(partial => partial.deactivate());
+            this._isActive = false;
+            this._partials.forEach(partial => partial.deactivate());
 
-        this._eventCallbacks.get('afterDeactivation').forEach(callback => callback());
+            this._eventCallbacks.get('afterDeactivation').forEach(callback => callback());
+        }
 
         return this;
     }
