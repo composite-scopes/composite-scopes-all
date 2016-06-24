@@ -1,6 +1,6 @@
 'use strict';
 
-import { Layer } from '../copv2/scope.js';
+import { Scope } from '../copv2/scope.js';
 import { withLayers } from '../copv2/withLayers.js';
 
 class TestPartial {
@@ -18,8 +18,8 @@ function getSpyOnActivate(partial) {
 
 describe('withLayers', function() {
     it('should allow control flow-based scoping', () => {
-        var l1 = new Layer(),
-            l2 = new Layer(),
+        var l1 = new Scope(),
+            l2 = new Scope(),
             spy = sinon.spy();
 
         var value = withLayers([l1, l2], () => {
@@ -36,8 +36,8 @@ describe('withLayers', function() {
     });
 
     xit('should support nested activation', () => {
-        var l1 = new Layer(),
-            l2 = new Layer(),
+        var l1 = new Scope(),
+            l2 = new Scope(),
             spy = sinon.spy();
 
         withLayers([l1, l2], () => {

@@ -1,6 +1,6 @@
 'use strict';
 
-import { Layer } from '../copv2/scope.js';
+import { Scope } from '../copv2/scope.js';
 import onEvent from '../copv2/eventTransition.js';
 
 class TestPartial {
@@ -20,8 +20,8 @@ describe('eventTransition', function() {
 
     // TODO: this test only run in browser environment currently
     (window ? it : xit)('should support a basic event-based layer transition', () => {
-        var l1 = new Layer().activate(),
-            l2 = new Layer();
+        var l1 = new Scope().activate(),
+            l2 = new Scope();
 
         onEvent('click')
             .transition([l1], [l2]);
@@ -33,9 +33,9 @@ describe('eventTransition', function() {
     });
 
     (window ? it : xit)('should select the first match on transition', () => {
-        var l1 = new Layer(),
-            l2 = new Layer().activate(),
-            l3 = new Layer();
+        var l1 = new Scope(),
+            l2 = new Scope().activate(),
+            l3 = new Scope();
 
         onEvent('click')
             .transition([l1], [l2])
@@ -50,8 +50,8 @@ describe('eventTransition', function() {
     });
 
     (window ? it : xit)('should consider the condition when the appropriate event fires', () => {
-        var l1 = new Layer().activate(),
-            l2 = new Layer(),
+        var l1 = new Scope().activate(),
+            l2 = new Scope(),
             condition = false;
 
         onEvent('click', () => { return condition})
@@ -72,8 +72,8 @@ describe('eventTransition', function() {
     });
 
     (window ? it : xit)('should allow to remove an event listener', () => {
-        var l1 = new Layer().activate(),
-            l2 = new Layer(),
+        var l1 = new Scope().activate(),
+            l2 = new Scope(),
             callback = sinon.spy();
 
         onEvent('click', callback)

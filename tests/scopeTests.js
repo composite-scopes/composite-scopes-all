@@ -1,8 +1,6 @@
 'use strict';
 
-import { Layer } from '../copv2/scope.js';
-
-let Scope = Layer;
+import { Scope } from '../copv2/scope.js';
 
 class TestPartial {
     constructor() {}
@@ -31,7 +29,7 @@ describe('Scope', function() {
         var testLayer;
 
         beforeEach(() => {
-            testLayer = new Layer();
+            testLayer = new Scope();
         });
 
         it('should delegate a basic activation', () => {
@@ -109,7 +107,7 @@ describe('Scope', function() {
             var spy = getSpyOnActivate(partial);
 
             testLayer
-                .add(new Layer()
+                .add(new Scope()
                     .add(partial))
                 .activate();
 
@@ -217,7 +215,7 @@ describe('Scope', function() {
         it('should notify on basic activation', () => {
             var callback = sinon.spy();
 
-            new Layer()
+            new Scope()
                 .on('beforeActivation', callback)
                 .activate();
 
@@ -227,7 +225,7 @@ describe('Scope', function() {
         it('activating an already activated scope should not trigger an additional notification', () => {
             var callback = sinon.spy();
 
-            new Layer()
+            new Scope()
                 .on('beforeActivation', callback)
                 .activate()
                 .activate();
@@ -241,7 +239,7 @@ describe('Scope', function() {
             var partialActivated = getSpyOnActivate(partial);
             var afterCallback = sinon.spy();
 
-            var layer = new Layer()
+            var layer = new Scope()
                 .on('beforeActivation', beforeCallback)
                 .add(partial)
                 .on('afterActivation', afterCallback)
