@@ -15,8 +15,7 @@ export class Layer {
         this.activatedItems = new Set();
 
         this._isActive = false;
-        // TODO: give _partials a set semantic
-        this._partials = [];
+        this._partials = new Set();
 
         // TODO: use a dedicated event listener library
         this._eventCallbacks = new Map();
@@ -27,20 +26,19 @@ export class Layer {
 
     // Managing composites
     add(partial) {
-        // TODO: test for adding a partial multiple times; this should still only cause 1 activation
-        this._partials.push(partial);
+        this._partials.add(partial);
+
+        // TODO: adding to an already active scope should activate the partial
 
         return this;
     }
     remove(partial) {
-        var i = this._partials.indexOf(partial);
-        if(i >= 0) {
-            this._partials.splice(i, 1);
-        }
+        this._partials.delete(partial);
+
         return this;
     }
     contains(partial) {
-        return this._partials.includes(partial);
+        return this._partials.has(partial);
     }
     [Symbol.iterator]() {
         return this._partials.values()

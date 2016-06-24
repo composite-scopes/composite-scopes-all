@@ -72,6 +72,17 @@ describe('Scope', function() {
             expect(partial.deactivate.calledOnce).to.be.true;
         });
 
+        it('ensures that partials have a set semantic', () => {
+            var partial = new SpyPartial();
+
+            testLayer
+                .add(partial)
+                .add(partial)
+                .activate();
+
+            expect(partial.activate.calledOnce).to.be.true;
+        });
+
         // TODO: What about edge cases like adding an existing element or removing a non-existing one?
         it('manage contained objects', () => {
             var partial1 = {},
