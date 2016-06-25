@@ -10,23 +10,11 @@ const events = [
     'afterDeactivationFor'
 ];
 
-
+// TODO: rename to PartialBehavior
 export class Partial {
-    activate() {}
-    deactivate() {}
-    activateFor() {}
-    deactivateFor() {}
-}
-
-export class Scope extends Partial {
     constructor() {
-        super();
-
-        this.activatedItems = new Set();
-
-
         this._isActive = false;
-        this._partials = new Set();
+        this._activatedItems = new Set();
 
         // TODO: use a dedicated event listener library
         this._eventCallbacks = new Map();
@@ -34,42 +22,19 @@ export class Scope extends Partial {
             this._eventCallbacks.set(eventName, new Set());
         }
     }
-
-    // Managing composites
-    add(partial) {
-        this._partials.add(partial);
-
-        if(this.isActive()) {
-            partial.activate();
-        }
-        this.activatedItems.forEach(activatedItem => partial.activateFor(activatedItem));
-
-        return this;
-    }
-    remove(partial) {
-        this._partials.delete(partial);
-
-        if(this.isActive()) {
-            partial.deactivate();
-        }
-        this.activatedItems.forEach(activatedItem => partial.deactivateFor(activatedItem));
-
-        return this;
-    }
-    contains(partial) {
-        return this._partials.has(partial);
-    }
-    [Symbol.iterator]() {
-        return this._partials.values()
+    isActive() { return this._isActive; }
+    isActiveFor(obj) {
+        return this._activatedItems.has(obj);
     }
 
-    // Scope Activation
+    // Activation of the partial behavior
+    // TODO: these methods are candidates for around advices
     activate() {
         if(!this.isActive()) {
             this._eventCallbacks.get('beforeActivation').forEach(callback => callback());
 
             this._isActive = true;
-            this._partials.forEach(partial => partial.activate());
+            this.__activate__();
 
             this._eventCallbacks.get('afterActivation').forEach(callback => callback());
         }
@@ -81,14 +46,43 @@ export class Scope extends Partial {
             this._eventCallbacks.get('beforeDeactivation').forEach(callback => callback());
 
             this._isActive = false;
-            this._partials.forEach(partial => partial.deactivate());
+            this.__deactivate__();
 
             this._eventCallbacks.get('afterDeactivation').forEach(callback => callback());
         }
 
         return this;
     }
-    isActive() { return this._isActive; }
+
+    activateFor(obj) {
+        if(!this.isActiveFor(obj)) {
+            this._eventCallbacks.get('beforeActivationFor').forEach(callback => callback(obj));
+
+            this._activatedItems.add(obj);
+            this.__activateFor__(obj);
+
+            this._eventCallbacks.get('afterActivationFor').forEach(callback => callback(obj));
+        }
+
+        return this;
+    }
+    deactivateFor(obj) {
+        if(this.isActiveFor(obj)) {
+            this._eventCallbacks.get('beforeDeactivationFor').forEach(callback => callback(obj));
+
+            this._activatedItems.delete(obj);
+            this.__deactivateFor__(obj);
+
+            this._eventCallbacks.get('afterDeactivationFor').forEach(callback => callback(obj));
+        }
+
+        return this;
+    }
+
+    __activate__() {}
+    __deactivate__() {}
+    __activateFor__() {}
+    __deactivateFor__() {}
 
     // Activation Hooks
     on(event, callback) {
@@ -103,33 +97,53 @@ export class Scope extends Partial {
 
         return this;
     }
+}
 
-    activateFor(obj) {
-        if(!this.isActiveFor(obj)) {
-            this._eventCallbacks.get('beforeActivationFor').forEach(callback => callback(obj));
+export class Scope extends Partial {
+    constructor() {
+        super();
 
-            this.activatedItems.add(obj);
-            this._partials.forEach(partial => partial.activateFor(obj));
+        this._partials = new Set();
+    }
 
-            this._eventCallbacks.get('afterActivationFor').forEach(callback => callback(obj));
+    // Managing composites
+    add(partial) {
+        this._partials.add(partial);
+
+        if(this.isActive()) {
+            partial.activate();
         }
+        this._activatedItems.forEach(activatedItem => partial.activateFor(activatedItem));
 
         return this;
     }
+    remove(partial) {
+        this._partials.delete(partial);
 
-    deactivateFor(obj) {
-        if(this.isActiveFor(obj)) {
-            this._eventCallbacks.get('beforeDeactivationFor').forEach(callback => callback(obj));
-
-            this.activatedItems.delete(obj);
-            this._partials.forEach(partial => partial.deactivateFor(obj));
-
-            this._eventCallbacks.get('afterDeactivationFor').forEach(callback => callback(obj));
+        if(this.isActive()) {
+            partial.deactivate();
         }
+        this._activatedItems.forEach(activatedItem => partial.deactivateFor(activatedItem));
 
         return this;
     }
-    isActiveFor(obj) {
-        return this.activatedItems.has(obj);
+    contains(partial) {
+        return this._partials.has(partial);
+    }
+    [Symbol.iterator]() {
+        return this._partials.values()
+    }
+
+    __activate__() {
+        this._partials.forEach(partial => partial.activate());
+    }
+    __deactivate__() {
+        this._partials.forEach(partial => partial.deactivate());
+    }
+    __activateFor__(obj) {
+        this._partials.forEach(partial => partial.activateFor(obj));
+    }
+    __deactivateFor__(obj) {
+        this._partials.forEach(partial => partial.deactivateFor(obj));
     }
 }
