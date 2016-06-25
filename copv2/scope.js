@@ -10,6 +10,7 @@ const events = [
     'afterDeactivationFor'
 ];
 
+
 export class Partial {
     activate() {}
     deactivate() {}
@@ -38,12 +39,17 @@ export class Scope extends Partial {
     add(partial) {
         this._partials.add(partial);
 
-        // TODO: adding to an already active scope should activate the partial
+        if(this.isActive()) {
+            partial.activate();
+        }
+        this.activatedItems.forEach(activatedItem => partial.activateFor(activatedItem));
 
         return this;
     }
     remove(partial) {
         this._partials.delete(partial);
+
+        // TODO: removing while being active causes the partial to be deactivated
 
         return this;
     }

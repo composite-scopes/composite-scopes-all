@@ -70,7 +70,7 @@ describe('Composite Scopes', () => {
             expect(partial.activate.calledOnce).to.be.true;
         });
 
-        // TODO: What about edge cases like adding an existing element or removing a non-existing one?
+        // TODO: What about edge cases like adding an existing partial or removing a non-existing one?
         it('manage contained objects', () => {
             let partial1 = {},
                 partial2 = {},
@@ -89,6 +89,16 @@ describe('Composite Scopes', () => {
             expect(scope.contains(partial1)).to.be.true;
             expect(scope.contains(partial2)).not.to.be.true;
             expect(scope.contains(partial3)).not.to.be.true;
+        });
+
+        it('adding to an already active scope should activate the partial', () => {
+            let partial = new SpyPartial();
+
+            scope
+                .activate()
+                .add(partial);
+
+            assert(partial.activate.calledOnce);
         });
 
         it('should support nested scopes', () => {
@@ -171,6 +181,17 @@ describe('Composite Scopes', () => {
                     .activateFor(obj);
 
                 expect(partial.activateFor.withArgs(obj).calledOnce).to.be.true;
+            });
+
+            it('adding a partial causes it to be activated for each activated item', () => {
+                let partial = new SpyPartial(),
+                    obj = {};
+
+                scope
+                    .activateFor(obj)
+                    .add(partial);
+
+                assert(partial.activateFor.withArgs(obj).calledOnce);
             });
 
             it('allows simple reflection via isActiveFor', () => {
