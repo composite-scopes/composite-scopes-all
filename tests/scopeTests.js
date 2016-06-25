@@ -2,6 +2,7 @@
 
 import { Scope, Partial } from '../copv2/scope.js';
 
+// TODO: install spies to __method__
 class SpyPartial extends Partial {
     constructor() {
         super();
@@ -12,6 +13,30 @@ class SpyPartial extends Partial {
         this.deactivateFor = sinon.spy(this.deactivateFor);
     }
 }
+
+describe('Partial', () => {
+    // TODO: move notification tests here
+    describe('Basic Functionality', () => {
+        let scope;
+
+        beforeEach(() => {
+            scope = new Scope();
+        });
+
+        xit('should delegate a basic activation', () => {
+            let partial = new SpyPartial();
+
+            scope
+                .add(partial)
+                .activate();
+
+            expect(partial.activate.calledOnce).to.be.true;
+
+            scope.deactivate();
+            expect(partial.deactivate.calledOnce).to.be.true;
+        });
+    });
+});
 
 describe('Composite Scopes', () => {
     describe('Basic Functionality', () => {
@@ -92,24 +117,25 @@ describe('Composite Scopes', () => {
         });
 
         it('adding to an already active scope should activate the partial', () => {
-            let partial = new SpyPartial();
+            let partial = new Partial();
 
             scope
                 .activate()
                 .add(partial);
 
-            assert(partial.activate.calledOnce);
+            //assert(partial.activate.calledOnce);
+            expect(partial.isActive()).to.be.true;
         });
 
         it('removing while being active causes the partial to be deactivated', () => {
-            let partial = new SpyPartial();
+            let partial = new Partial();
 
             scope
                 .add(partial)
                 .activate()
                 .remove(partial);
 
-            assert(partial.deactivate.calledOnce);
+            expect(partial.isActive()).to.be.false;
         });
 
         it('should support nested scopes', () => {
