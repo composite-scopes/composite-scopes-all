@@ -49,7 +49,10 @@ export class Scope extends Partial {
     remove(partial) {
         this._partials.delete(partial);
 
-        // TODO: removing while being active causes the partial to be deactivated
+        if(this.isActive()) {
+            partial.deactivate();
+        }
+        this.activatedItems.forEach(activatedItem => partial.deactivateFor(activatedItem));
 
         return this;
     }

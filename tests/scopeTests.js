@@ -101,6 +101,17 @@ describe('Composite Scopes', () => {
             assert(partial.activate.calledOnce);
         });
 
+        it('removing while being active causes the partial to be deactivated', () => {
+            let partial = new SpyPartial();
+
+            scope
+                .add(partial)
+                .activate()
+                .remove(partial);
+
+            assert(partial.deactivate.calledOnce);
+        });
+
         it('should support nested scopes', () => {
             let partial = new SpyPartial();
 
@@ -192,6 +203,18 @@ describe('Composite Scopes', () => {
                     .add(partial);
 
                 assert(partial.activateFor.withArgs(obj).calledOnce);
+            });
+
+            it('removing a partial of an active scope causes it to be deactivated for each activated item', () => {
+                let partial = new SpyPartial(),
+                    obj = {};
+
+                scope
+                    .add(partial)
+                    .activateFor(obj)
+                    .remove(partial);
+
+                assert(partial.deactivateFor.withArgs(obj).calledOnce);
             });
 
             it('allows simple reflection via isActiveFor', () => {
