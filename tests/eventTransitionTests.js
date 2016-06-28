@@ -12,10 +12,6 @@ class TestPartial {
     deactivateFor() {}
 }
 
-function getSpyOnActivate(partial) {
-    return partial.activate = sinon.spy();
-}
-
 describe('eventTransition', function() {
 
     // TODO: this test only run in browser environment currently
