@@ -23,7 +23,8 @@ module.exports = function(config) {
       'tests/**/*Tests.js',
       'copv2/**/*.js',
       'tests/**/*Tests.js',
-      'tests/**/*Fixtures.js'
+      'tests/**/*Fixtures.js',
+      'tests/**/*Helper.js'
     ],
 
 
@@ -40,8 +41,7 @@ module.exports = function(config) {
       'Layers.js': ['babel', 'commonjs'],
       'old-api.js': ['babel', 'commonjs'],
       'tests/**/*.js': ['babel', 'commonjs'],
-      'copv2/**/*.js': ['babel', 'commonjs'],
-      'tests/**/*.js': ['babel', 'commonjs']
+      'copv2/**/*.js': ['babel', 'commonjs']
     },
 
     babelPreprocessor: {

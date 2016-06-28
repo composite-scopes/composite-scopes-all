@@ -1,11 +1,12 @@
 'use strict';
 
 import notify from './../copv2/activeEventTracking.js';
+import testOnlyInBrowser from './testInBrowserHelper.js';
 
 describe('Active Event Tracking', function() {
 
     // TODO: this test only run in browser environment currently
-    (window ? it : xit)('should work in principle', () => {
+    testOnlyInBrowser('should work in principle', () => {
         var spy = sinon.spy();
 
         var div = document.createElement('div');
@@ -19,7 +20,7 @@ describe('Active Event Tracking', function() {
         expect(spy.calledOnce).to.be.true;
     });
 
-    (window ? it : xit)('should notify multiple times, once for each click', () => {
+    testOnlyInBrowser('should notify multiple times, once for each click', () => {
         var spy = sinon.spy();
 
         var div = document.createElement('div');
@@ -39,7 +40,7 @@ describe('Active Event Tracking', function() {
         notifier.uninstall();
     });
 
-    (window ? it : xit)('should notify created after the hook was created', () => {
+    testOnlyInBrowser('should notify created after the hook was created', () => {
         var spy = sinon.spy();
 
         let notifier = notify('click', 'div', spy);
@@ -54,7 +55,7 @@ describe('Active Event Tracking', function() {
         notifier.uninstall();
     });
 
-    (window ? it : xit)('should dynamically notify nodes matching more complex selectors', () => {
+    testOnlyInBrowser('should dynamically notify nodes matching more complex selectors', () => {
         var spy = sinon.spy();
         let label = 'notify-me';
 
