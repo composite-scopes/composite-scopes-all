@@ -20,7 +20,7 @@ module.exports = function(config) {
       'Layers.js',
       'old-api.js',
       'tests/**/*test.js',
-      'tests/**/*Tests.js'
+      'tests/**/*Tests.js',
       'copv2/**/*.js',
       'tests/**/*Tests.js',
       'tests/**/*Fixtures.js'
