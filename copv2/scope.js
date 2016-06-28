@@ -135,15 +135,23 @@ export class Scope extends Partial {
     }
 
     __activate__() {
+        super.__activate__();
+
         this._partials.forEach(partial => partial.activate());
     }
     __deactivate__() {
+        super.__deactivate__();
+
         this._partials.forEach(partial => partial.deactivate());
     }
     __activateFor__(obj) {
+        super.__activateFor__(obj);
+
         this._partials.forEach(partial => partial.activateFor(obj));
     }
     __deactivateFor__(obj) {
+        super.__deactivateFor__(obj);
+
         this._partials.forEach(partial => partial.deactivateFor(obj));
     }
 }
