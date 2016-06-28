@@ -17,23 +17,43 @@ class SpyPartial extends Partial {
 describe('Partial', () => {
     // TODO: move notification tests here
     describe('Basic Functionality', () => {
-        let scope;
+        let partial;
 
         beforeEach(() => {
-            scope = new Scope();
+            partial = new Partial();
         });
 
         xit('should delegate a basic activation', () => {
             let partial = new SpyPartial();
 
-            scope
+            partial
                 .add(partial)
                 .activate();
 
             expect(partial.activate.calledOnce).to.be.true;
 
-            scope.deactivate();
+            partial.deactivate();
             expect(partial.deactivate.calledOnce).to.be.true;
+        });
+
+        it('allows simple reflection via isActiveFor', () => {
+            let obj = {},
+                obj2 = {};
+
+            expect(partial.isActiveFor(obj)).to.be.false;
+            expect(partial.isActiveFor(obj2)).to.be.false;
+
+            partial.activateFor(obj);
+            expect(partial.isActiveFor(obj)).to.be.true;
+            expect(partial.isActiveFor(obj2)).to.be.false;
+
+            partial.activateFor(obj2);
+            expect(partial.isActiveFor(obj)).to.be.true;
+            expect(partial.isActiveFor(obj2)).to.be.true;
+
+            partial.deactivateFor(obj);
+            expect(partial.isActiveFor(obj)).to.be.false;
+            expect(partial.isActiveFor(obj2)).to.be.true;
         });
     });
 });
@@ -96,6 +116,8 @@ describe('Composite Scopes', () => {
         });
 
         // TODO: What about edge cases like adding an existing partial or removing a non-existing one?
+        // TODO: Also, what about this, when add to an already activated scope multiple times?
+        // the partial should only be activated once
         it('manage contained objects', () => {
             let partial1 = {},
                 partial2 = {},
@@ -241,26 +263,6 @@ describe('Composite Scopes', () => {
                     .remove(partial);
 
                 assert(partial.deactivateFor.withArgs(obj).calledOnce);
-            });
-
-            it('allows simple reflection via isActiveFor', () => {
-                let obj = {},
-                    obj2 = {};
-
-                expect(scope.isActiveFor(obj)).to.be.false;
-                expect(scope.isActiveFor(obj2)).to.be.false;
-
-                scope.activateFor(obj);
-                expect(scope.isActiveFor(obj)).to.be.true;
-                expect(scope.isActiveFor(obj2)).to.be.false;
-
-                scope.activateFor(obj2);
-                expect(scope.isActiveFor(obj)).to.be.true;
-                expect(scope.isActiveFor(obj2)).to.be.true;
-
-                scope.deactivateFor(obj);
-                expect(scope.isActiveFor(obj)).to.be.false;
-                expect(scope.isActiveFor(obj2)).to.be.true;
             });
         });
     });
