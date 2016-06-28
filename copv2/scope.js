@@ -10,6 +10,32 @@ const events = [
     'afterDeactivationFor'
 ];
 
+class EventEmitter {
+    constructor() {
+        this._eventHandlers = new Map();
+    }
+
+    getHandlers(event) {
+        if(!this._eventHandlers.has(event)) {
+            this._eventHandlers.set(event, new Set());
+        }
+
+        return this._eventHandlers.get(event);
+    }
+
+    on(event, callback) {
+        this.getHandlers(event).add(callback);
+    }
+
+    off(event, callback) {
+        this.getHandlers(event).delete(callback);
+    }
+
+    emit(event, ...args) {
+        this.getHandlers(event).forEach(callback => callback(...args));
+    }
+}
+
 // TODO: rename to PartialBehavior
 export class Partial {
     constructor() {
@@ -17,10 +43,7 @@ export class Partial {
         this._activatedItems = new Set();
 
         // TODO: use a dedicated event listener library
-        this._eventCallbacks = new Map();
-        for(let eventName of events) {
-            this._eventCallbacks.set(eventName, new Set());
-        }
+        this._eventEmitter = new EventEmitter();
     }
     isActive() { return this._isActive; }
     isActiveFor(obj) {
@@ -31,24 +54,24 @@ export class Partial {
     // TODO: these methods are candidates for around advices
     activate() {
         if(!this.isActive()) {
-            this._eventCallbacks.get('beforeActivation').forEach(callback => callback());
+            this._eventEmitter.emit('beforeActivation');
 
             this._isActive = true;
             this.__activate__();
 
-            this._eventCallbacks.get('afterActivation').forEach(callback => callback());
+            this._eventEmitter.emit('afterActivation');
         }
 
         return this;
     }
     deactivate() {
         if(this.isActive()) {
-            this._eventCallbacks.get('beforeDeactivation').forEach(callback => callback());
+            this._eventEmitter.emit('beforeDeactivation');
 
             this._isActive = false;
             this.__deactivate__();
 
-            this._eventCallbacks.get('afterDeactivation').forEach(callback => callback());
+            this._eventEmitter.emit('afterDeactivation');
         }
 
         return this;
@@ -56,24 +79,24 @@ export class Partial {
 
     activateFor(obj) {
         if(!this.isActiveFor(obj)) {
-            this._eventCallbacks.get('beforeActivationFor').forEach(callback => callback(obj));
+            this._eventEmitter.emit('beforeActivationFor', obj);
 
             this._activatedItems.add(obj);
             this.__activateFor__(obj);
 
-            this._eventCallbacks.get('afterActivationFor').forEach(callback => callback(obj));
+            this._eventEmitter.emit('afterActivationFor', obj);
         }
 
         return this;
     }
     deactivateFor(obj) {
         if(this.isActiveFor(obj)) {
-            this._eventCallbacks.get('beforeDeactivationFor').forEach(callback => callback(obj));
+            this._eventEmitter.emit('beforeDeactivationFor', obj);
 
             this._activatedItems.delete(obj);
             this.__deactivateFor__(obj);
 
-            this._eventCallbacks.get('afterDeactivationFor').forEach(callback => callback(obj));
+            this._eventEmitter.emit('afterDeactivationFor', obj);
         }
 
         return this;
@@ -86,14 +109,12 @@ export class Partial {
 
     // Activation Hooks
     on(event, callback) {
-        var callbacks = this._eventCallbacks.get(event);
-        callbacks.add(callback);
+        this._eventEmitter.on(event, callback);
 
         return this;
     }
     off(event, callback) {
-        var callbacks = this._eventCallbacks.get(event);
-        callbacks.delete(callback);
+        this._eventEmitter.off(event, callback);
 
         return this;
     }
