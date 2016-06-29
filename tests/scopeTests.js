@@ -11,6 +11,8 @@ class SpyPartial extends Partial {
         this.deactivate = sinon.spy(this.deactivate);
         this.activateFor = sinon.spy(this.activateFor);
         this.deactivateFor = sinon.spy(this.deactivateFor);
+
+        this.id  = Math.random();
     }
 }
 
@@ -387,6 +389,74 @@ describe('Composite Scopes', () => {
                 assert(beforeDeactivationCallback.calledBefore(partial.deactivateFor));
                 assert(partial.deactivateFor.calledBefore(afterDeactivationCallback));
             });
+        });
+    });
+
+    describe('Single Parent Semantic', () => {
+        xit('a partial should only have one parent it reacts to', () => {
+            let partial = new Partial();
+
+            let oldParent = new Scope()
+                .add(partial);
+
+            let newParent = new Scope()
+                .add(partial);
+
+            oldParent.activate();
+
+            expect(partial.isActive()).to.be.false;
+
+            newParent.activate();
+
+            expect(partial.isActive()).to.be.true;
+        });
+    });
+
+    describe('Static Hooks', () => {
+        it('should notify about new scopes being created', () => {
+            let spy = sinon.spy();
+
+            let firstScope = new Scope();
+            // TODO: these properties are needed to distinguish scopes during the sinon matching
+            // TODO: find a way for identity matching and apply this in other test cases as well
+            firstScope.foo = '1';
+
+            Scope.on('created', spy);
+
+            let secondScope = new Scope();
+            secondScope.foo = '2';
+
+            Scope.off('created', spy);
+
+            let thirdScope = new Scope();
+            thirdScope.foo = '3';
+
+            expect(spy.calledWithExactly(firstScope)).to.be.false;
+            expect(spy.calledWithExactly(secondScope)).to.be.true;
+            expect(spy.calledWithExactly(thirdScope)).to.be.false;
+        });
+
+        it('should get notified about the (de-)activation of scopes', () => {
+            let activationSpy = sinon.spy(),
+                deactivationSpy = sinon.spy(),
+                firstScope = new Scope(),
+                secondScope = new Scope();
+
+            firstScope.foo = '1';
+            secondScope.foo = '2';
+
+            firstScope.activate();
+
+            Scope.on('activated', activationSpy);
+            Scope.on('deactivated', deactivationSpy);
+
+            secondScope.activate();
+
+            let thirdScope = new Scope();
+            thirdScope.foo = '3';
+
+            expect(activationSpy.withArgs(firstScope).called).to.be.false;
+            expect(deactivationSpy.withArgs(secondScope).calledOnce).to.be.true;
         });
     });
 });

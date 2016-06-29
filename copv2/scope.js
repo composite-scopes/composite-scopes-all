@@ -10,6 +10,12 @@ const events = [
     'afterDeactivationFor'
 ];
 
+const staticEvent = [
+    'created',
+    'activated',
+    'deactivated'
+];
+
 class EventEmitter {
     constructor() {
         this._eventHandlers = new Map();
@@ -120,11 +126,15 @@ export class Partial {
     }
 }
 
+const scopeEmitter = new EventEmitter();
+
 export class Scope extends Partial {
     constructor() {
         super();
 
         this._partials = new Set();
+
+        scopeEmitter.emit('created', this);
     }
 
     // Managing composites
@@ -174,5 +184,17 @@ export class Scope extends Partial {
         super.__deactivateFor__(obj);
 
         this._partials.forEach(partial => partial.deactivateFor(obj));
+    }
+
+    static on(event, callback) {
+        scopeEmitter.on(event, callback);
+
+        return this;
+    }
+
+    static off(event, callback) {
+        scopeEmitter.off(event, callback);
+
+        return this;
     }
 }
