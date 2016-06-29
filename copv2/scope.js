@@ -191,6 +191,7 @@ export class Scope extends Partial {
     __activateFor__(obj) {
         super.__activateFor__(obj);
 
+        getWithEmptySetAsDefault(activeScopesByObject, obj).add(this);
         scopeEmitter.emit('activatedFor', this, obj);
 
         this._partials.forEach(partial => partial.activateFor(obj));
@@ -198,6 +199,7 @@ export class Scope extends Partial {
     __deactivateFor__(obj) {
         super.__deactivateFor__(obj);
 
+        getWithEmptySetAsDefault(activeScopesByObject, obj).delete(this);
         scopeEmitter.emit('deactivatedFor', this, obj);
 
         this._partials.forEach(partial => partial.deactivateFor(obj));
@@ -222,6 +224,6 @@ export class Scope extends Partial {
     }
 
     static activeScopesFor(obj) {
-        return Array.from(activeScopesByObject);
+        return Array.from(getWithEmptySetAsDefault(activeScopesByObject, obj));
     }
 }

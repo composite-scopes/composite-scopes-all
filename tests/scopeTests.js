@@ -269,6 +269,67 @@ describe('Composite Scopes', () => {
         });
     });
 
+    describe('Reflection', () => {
+        it('gets all globally active scopes', () => {
+            let scope1 = new Scope().activate(),
+                scope2 = new Scope(),
+                scope3 = new Scope();
+
+            scope1.foo = 1;
+            scope2.foo = 2;
+            scope3.foo = 3;
+
+            expect(Scope.activeScopes()).to.include(scope1);
+            expect(Scope.activeScopes()).to.not.include(scope2);
+            expect(Scope.activeScopes()).to.not.include(scope3);
+
+            scope2.activate();
+
+            expect(Scope.activeScopes()).to.include(scope1);
+            expect(Scope.activeScopes()).to.include(scope2);
+            expect(Scope.activeScopes()).to.not.include(scope3);
+
+            scope1.deactivate();
+
+            expect(Scope.activeScopes()).to.not.include(scope1);
+            expect(Scope.activeScopes()).to.include(scope2);
+            expect(Scope.activeScopes()).to.not.include(scope3);
+        });
+        it('gets all active scopes for a specific instance', () => {
+            let scope1 = new Scope(),
+                scope2 = new Scope(),
+                scope3 = new Scope(),
+                obj1 = { id: 1 },
+                obj2 = { id: 2 };
+
+            scope1.foo = 1;
+            scope2.foo = 2;
+            scope3.foo = 3;
+
+            scope1.activateFor(obj1);
+            scope2.activateFor(obj2);
+
+            expect(Scope.activeScopesFor(obj1)).to.include(scope1);
+            expect(Scope.activeScopesFor(obj1)).to.not.include(scope2);
+            expect(Scope.activeScopesFor(obj1)).to.not.include(scope3);
+            expect(Scope.activeScopesFor(obj2)).to.not.include(scope1);
+            expect(Scope.activeScopesFor(obj2)).to.include(scope2);
+            expect(Scope.activeScopesFor(obj2)).to.not.include(scope3);
+
+            scope1.deactivateFor(obj1);
+            scope1.deactivateFor(obj2);
+            scope3.activateFor(obj1);
+            scope3.activateFor(obj2);
+            
+            expect(Scope.activeScopesFor(obj1)).to.not.include(scope1);
+            expect(Scope.activeScopesFor(obj1)).to.not.include(scope2);
+            expect(Scope.activeScopesFor(obj1)).to.include(scope3);
+            expect(Scope.activeScopesFor(obj2)).to.not.include(scope1);
+            expect(Scope.activeScopesFor(obj2)).to.include(scope2);
+            expect(Scope.activeScopesFor(obj2)).to.include(scope3);
+        });
+    });
+
     describe('Activation Hooks', () => {
         it('should notify on basic activation', () => {
             let callback = sinon.spy();
