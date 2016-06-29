@@ -452,11 +452,13 @@ describe('Composite Scopes', () => {
 
             secondScope.activate();
 
-            let thirdScope = new Scope();
-            thirdScope.foo = '3';
-
             expect(activationSpy.withArgs(firstScope).called).to.be.false;
-            expect(deactivationSpy.withArgs(secondScope).calledOnce).to.be.true;
+            expect(activationSpy.withArgs(secondScope).calledOnce).to.be.true;
+
+            firstScope.deactivate();
+
+            expect(deactivationSpy.withArgs(firstScope).calledOnce).to.be.true;
+            expect(deactivationSpy.withArgs(secondScope).called).to.be.false;
         });
     });
 });

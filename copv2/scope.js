@@ -168,10 +168,14 @@ export class Scope extends Partial {
     __activate__() {
         super.__activate__();
 
+        scopeEmitter.emit('activated', this);
+
         this._partials.forEach(partial => partial.activate());
     }
     __deactivate__() {
         super.__deactivate__();
+
+        scopeEmitter.emit('deactivated', this);
 
         this._partials.forEach(partial => partial.deactivate());
     }
