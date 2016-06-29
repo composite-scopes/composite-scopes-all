@@ -16,6 +16,10 @@ const staticEvent = [
     'deactivated'
 ];
 
+export const COMPOSE_ANY = {};
+export const COMPOSE_ALL = {};
+export const COMPOSE_LAST = {};
+
 function getWithEmptySetAsDefault(map, key) {
     if(!map.has(key)) {
         map.set(key, new Set());
@@ -46,7 +50,7 @@ class EventEmitter {
     }
 }
 
-// TODO: rename to PartialBehavior
+// TODO: rename to PartialBehavior or adaption
 export class Partial {
     constructor() {
         this._isActive = false;
@@ -133,6 +137,7 @@ export class Partial {
 const scopeEmitter = new EventEmitter();
 // TODO: conceptually, this could be a WeakSet
 const activeScopes = new Set();
+// TODO: conceptually, this could be a WeakMap of WeakSets
 const activeScopesByObject = new Map();
 
 export class Scope extends Partial {

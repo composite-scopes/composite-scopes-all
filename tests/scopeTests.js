@@ -1,6 +1,6 @@
 'use strict';
 
-import { Scope, Partial } from '../copv2/scope.js';
+import { Scope, Partial, COMPOSE_ALL, COMPOSE_ANY, COMPOSE_LAST } from '../copv2/scope.js';
 
 // TODO: install spies to __method__
 class SpyPartial extends Partial {
@@ -295,6 +295,7 @@ describe('Composite Scopes', () => {
             expect(Scope.activeScopes()).to.include(scope2);
             expect(Scope.activeScopes()).to.not.include(scope3);
         });
+
         it('gets all active scopes for a specific instance', () => {
             let scope1 = new Scope(),
                 scope2 = new Scope(),
@@ -320,7 +321,7 @@ describe('Composite Scopes', () => {
             scope1.deactivateFor(obj2);
             scope3.activateFor(obj1);
             scope3.activateFor(obj2);
-            
+
             expect(Scope.activeScopesFor(obj1)).to.not.include(scope1);
             expect(Scope.activeScopesFor(obj1)).to.not.include(scope2);
             expect(Scope.activeScopesFor(obj1)).to.include(scope3);
