@@ -460,5 +460,39 @@ describe('Composite Scopes', () => {
             expect(deactivationSpy.withArgs(firstScope).calledOnce).to.be.true;
             expect(deactivationSpy.withArgs(secondScope).called).to.be.false;
         });
+
+        it('should get notified about the instance-specific (de-)activation of scopes', () => {
+            let activationForSpy = sinon.spy(),
+                deactivationForSpy = sinon.spy(),
+                firstScope = new Scope(),
+                secondScope = new Scope(),
+                obj1 = { id: 1 },
+                obj2 = { id: 2 };
+
+            firstScope.foo = '1';
+            secondScope.foo = '2';
+
+            Scope.on('activatedFor', activationForSpy);
+            Scope.on('deactivatedFor', deactivationForSpy);
+
+            firstScope.activateFor(obj1);
+            firstScope.activateFor(obj2);
+            secondScope.activateFor(obj1);
+
+            expect(activationForSpy.withArgs(firstScope, obj1).calledOnce).to.be.true;
+            expect(activationForSpy.withArgs(firstScope, obj2).calledOnce).to.be.true;
+            expect(activationForSpy.withArgs(secondScope, obj1).calledOnce).to.be.true;
+            expect(activationForSpy.withArgs(secondScope, obj2).called).to.be.false;
+
+            firstScope.deactivateFor(obj2);
+            secondScope.deactivateFor(obj1);
+            secondScope.deactivateFor(obj2);
+
+            expect(deactivationForSpy.withArgs(firstScope, obj1).called).to.be.false;
+            expect(deactivationForSpy.withArgs(firstScope, obj2).calledOnce).to.be.true;
+            expect(deactivationForSpy.withArgs(secondScope, obj1).calledOnce).to.be.true;
+            // the scope was already deactivated, so it is not actually deactivated for the second object
+            expect(deactivationForSpy.withArgs(secondScope, obj2).called).to.be.false;
+        });
     });
 });

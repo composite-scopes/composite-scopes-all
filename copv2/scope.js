@@ -182,10 +182,14 @@ export class Scope extends Partial {
     __activateFor__(obj) {
         super.__activateFor__(obj);
 
+        scopeEmitter.emit('activatedFor', this, obj);
+
         this._partials.forEach(partial => partial.activateFor(obj));
     }
     __deactivateFor__(obj) {
         super.__deactivateFor__(obj);
+
+        scopeEmitter.emit('deactivatedFor', this, obj);
 
         this._partials.forEach(partial => partial.deactivateFor(obj));
     }
