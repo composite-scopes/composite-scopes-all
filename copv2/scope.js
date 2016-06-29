@@ -16,17 +16,21 @@ const staticEvent = [
     'deactivated'
 ];
 
+function getWithEmptySetAsDefault(map, key) {
+    if(!map.has(key)) {
+        map.set(key, new Set());
+    }
+
+    return map.get(key);
+}
+
 class EventEmitter {
     constructor() {
         this._eventHandlers = new Map();
     }
 
     getHandlers(event) {
-        if(!this._eventHandlers.has(event)) {
-            this._eventHandlers.set(event, new Set());
-        }
-
-        return this._eventHandlers.get(event);
+        return getWithEmptySetAsDefault(this._eventHandlers, event);
     }
 
     on(event, callback) {
@@ -127,6 +131,9 @@ export class Partial {
 }
 
 const scopeEmitter = new EventEmitter();
+// TODO: conceptually, this could be a WeakSet
+const activeScopes = new Set();
+const activeScopesByObject = new Map();
 
 export class Scope extends Partial {
     constructor() {
@@ -168,6 +175,7 @@ export class Scope extends Partial {
     __activate__() {
         super.__activate__();
 
+        activeScopes.add(this);
         scopeEmitter.emit('activated', this);
 
         this._partials.forEach(partial => partial.activate());
@@ -175,6 +183,7 @@ export class Scope extends Partial {
     __deactivate__() {
         super.__deactivate__();
 
+        activeScopes.delete(this);
         scopeEmitter.emit('deactivated', this);
 
         this._partials.forEach(partial => partial.deactivate());
@@ -204,5 +213,15 @@ export class Scope extends Partial {
         scopeEmitter.off(event, callback);
 
         return this;
+    }
+
+    static activeScopes() {
+        // TODO: should we really only provide a view
+        // TODO: this is currently done because chai 'include' can only deal with Arrays
+        return Array.from(activeScopes);
+    }
+
+    static activeScopesFor(obj) {
+        return Array.from(activeScopesByObject);
     }
 }
