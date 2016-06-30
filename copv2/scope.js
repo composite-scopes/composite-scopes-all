@@ -19,6 +19,11 @@ const staticEvent = [
 export const COMPOSE_ANY = {};
 export const COMPOSE_ALL = {};
 export const COMPOSE_LAST = {};
+const COMPOSE_DEFAULT = COMPOSE_ALL;
+
+// TODO: add activation types
+const ACTIVATION_TYPE_TRANSITION = {};
+const ACTIVATION_TYPE_STATE = {};
 
 function getWithEmptySetAsDefault(map, key) {
     if(!map.has(key)) {
@@ -52,7 +57,8 @@ class EventEmitter {
 
 // TODO: rename to PartialBehavior or adaption
 export class Partial {
-    constructor() {
+    constructor(compositionMode) {
+        this.compositionMode = compositionMode;
         this._isActive = false;
         this._activatedItems = new Set();
 

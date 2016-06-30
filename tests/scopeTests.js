@@ -4,8 +4,8 @@ import { Scope, Partial, COMPOSE_ALL, COMPOSE_ANY, COMPOSE_LAST } from '../copv2
 
 // TODO: install spies to __method__
 class SpyPartial extends Partial {
-    constructor() {
-        super();
+    constructor(...args) {
+        super(...args);
 
         this.activate = sinon.spy(this.activate);
         this.deactivate = sinon.spy(this.deactivate);
@@ -454,22 +454,30 @@ describe('Composite Scopes', () => {
         });
     });
 
-    describe('Single Parent Semantic', () => {
-        xit('a partial should only have one parent it reacts to', () => {
-            let partial = new Partial();
-
-            let oldParent = new Scope()
-                .add(partial);
-
-            let newParent = new Scope()
-                .add(partial);
-
-            oldParent.activate();
-
+    describe('Multiple Parent Semantic', () => {
+        xit('supports explicit ALL semantic', () => {
+            let partial = new Partial(COMPOSE_ALL);
+            // with no parent attached, the partial should not be active, despite the fact that all (zero) parents are active
             expect(partial.isActive()).to.be.false;
 
-            newParent.activate();
+            let parent1 = new Scope()
+                .add(partial);
+            expect(partial.isActive()).to.be.false;
 
+            parent1.activate();
+            expect(partial.isActive()).to.be.true;
+
+            let parent2 = new Scope()
+                .add(partial);
+            expect(partial.isActive()).to.be.false;
+
+            parent2.activate();
+            expect(partial.isActive()).to.be.true;
+
+            parent1.deactivate();
+            expect(partial.isActive()).to.be.false;
+
+            parent1.remove(partial);
             expect(partial.isActive()).to.be.true;
         });
     });
