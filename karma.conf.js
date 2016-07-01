@@ -15,6 +15,7 @@ module.exports = function(config) {
     // list of files / patterns to load in the browser
     files: [
       'node_modules/babel-polyfill/dist/polyfill.js',
+      { pattern: 'node_modules/stack-es2015-modules/**/*.js', included: false },
       'contextjs.js',
       'module_import.js',
       'Layers.js',
@@ -41,7 +42,8 @@ module.exports = function(config) {
       'Layers.js': ['babel', 'commonjs'],
       'old-api.js': ['babel', 'commonjs'],
       'tests/**/*.js': ['babel', 'commonjs'],
-      'copv2/**/*.js': ['babel', 'commonjs']
+      'copv2/**/*.js': ['babel', 'commonjs'],
+      'node_modules/stack-es2015-modules/**/*.js': ['babel', 'commonjs']
     },
 
     babelPreprocessor: {

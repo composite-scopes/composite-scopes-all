@@ -1,7 +1,7 @@
 'use strict';
 
 import { Scope } from '../copv2/scope.js';
-import { withLayers } from '../copv2/withLayers.js';
+import { withLayers, withoutLayers } from '../copv2/withLayers.js';
 
 class TestPartial {
     constructor() {}
@@ -17,7 +17,7 @@ function getSpyOnActivate(partial) {
 }
 
 describe('withLayers', function() {
-    it('should allow control flow-based scoping', () => {
+    it('should allow basic control flow-based scoping', () => {
         var l1 = new Scope(),
             l2 = new Scope(),
             spy = sinon.spy();
@@ -43,19 +43,51 @@ describe('withLayers', function() {
         withLayers([l1, l2], () => {
             expect(l1.isActive()).to.be.true;
             expect(l2.isActive()).to.be.true;
+            withoutLayers([l2], () => {
+                expect(l1.isActive()).to.be.true;
+                expect(l2.isActive()).to.be.false;
+                spy();
+            });
+            expect(l1.isActive()).to.be.true;
+            expect(l2.isActive()).to.be.true;
+        });
+
+        expect(l1.isActive()).to.be.false;
+        expect(l2.isActive()).to.be.false;
+        assert(spy.calledOnce);
+    });
+
+    xit('should support nested withLayers', () => {
+        var l1 = new Scope(),
+            l2 = new Scope(),
+            spy = sinon.spy();
+
+        withLayers([l1], () => {
+            expect(l1.isActive()).to.be.true;
+            expect(l2.isActive()).to.be.false;
+
+            withLayers([l2], () => {
+                expect(l1.isActive()).to.be.true;
+                expect(l2.isActive()).to.be.true;
+                spy();
+            });
+
+            expect(l1.isActive()).to.be.true;
+            expect(l2.isActive()).to.be.false;
+
             withLayers([l1, l2], () => {
                 expect(l1.isActive()).to.be.true;
                 expect(l2.isActive()).to.be.true;
                 spy();
             });
-            // TODO: nested withLayers should support the intended behavior
+
             expect(l1.isActive()).to.be.true;
-            expect(l2.isActive()).to.be.true;
+            expect(l2.isActive()).to.be.false;
             spy();
         });
 
-        expect(l1.isActive()).not.to.be.true;
-        expect(l2.isActive()).not.to.be.true;
-        assert(spy.calledTwice)
+        expect(l1.isActive()).to.be.false;
+        expect(l2.isActive()).to.be.false;
+        //assert(spy.calledThrice);
     });
 });

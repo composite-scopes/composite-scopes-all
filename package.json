@@ -10,7 +10,7 @@
     "test": "npm run test-node && npm run test-karma",
     "test-karma": "karma start --single-run",
     "karma": "karma",
-    "test-node": "mocha tests --compilers js:babel-core/register --require tests/globalChai.js",
+    "test-node": "mocha tests --require tests/globalChai.js --require tests/registerBabel.js",
     "test-chrome-only": "karma start --single-run --browsers Chrome",
     "test-continuously": "karma start",
     "test-continuously-chrome-only": "karma start --browsers Chrome",
@@ -61,5 +61,7 @@
     "phantomjs-prebuilt": "^2.1.7",
     "sinon": "^1.17.4"
   },
-  "dependencies": {}
+  "dependencies": {
+    "stack-es2015-modules": "^1.0.0"
+  }
 }
