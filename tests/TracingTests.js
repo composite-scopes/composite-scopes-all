@@ -1,4 +1,4 @@
-import * as cop from '../Layers';
+import * as cop from '../Layers.js';
 
 function TestCase() {}; // TODO: get rid of this
 TestCase.subclass = function () {

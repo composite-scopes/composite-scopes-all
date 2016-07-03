@@ -56,7 +56,7 @@ describe('withLayers', function() {
         expect(l2.isActive()).to.be.false;
         assert(spy.calledOnce);
     });
-
+    
     xit('should support nested withLayers', () => {
         var l1 = new Scope(),
             l2 = new Scope(),
