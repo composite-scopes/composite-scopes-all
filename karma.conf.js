@@ -109,7 +109,7 @@ module.exports = function(config) {
     browserNoActivityTimeout: 20000
   });
 
-  if(process.env.TRAVIS) {
-    config.browsers = ['ChromeCanary_Travis_CI'];
-  }
+  // if(process.env.TRAVIS) {
+  //   config.browsers = ['ChromeCanary_Travis_CI'];
+  // }
 };
