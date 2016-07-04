@@ -3,15 +3,6 @@
 import { Scope } from '../copv2/scope.js';
 import { withLayers, withoutLayers } from '../copv2/withLayers.js';
 
-class TestPartial {
-    constructor() {}
-    
-    activate() {}
-    deactivate() {}
-    activateFor() {}
-    deactivateFor() {}
-}
-
 function getSpyOnActivate(partial) {
     return partial.activate = sinon.spy();
 }

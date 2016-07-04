@@ -22,11 +22,9 @@ function restoreState(layers) {
     });
 }
 
-// TODO: support withoutLayers as well
 export function withLayers(layers, callback) {
     memorizeState(layers);
     try {
-        // TODO: we should remember the state of these scopes and revert to them after the function call;
         layers.forEach(l => l.activate());
         return callback();
     }
@@ -38,7 +36,6 @@ export function withLayers(layers, callback) {
 export function withoutLayers(layers, callback) {
     memorizeState(layers);
     try {
-        // TODO: we should remember the state of these scopes and revert to them after the function call;
         layers.forEach(l => l.deactivate());
         return callback();
     }
@@ -46,3 +43,5 @@ export function withoutLayers(layers, callback) {
         restoreState(layers);
     }
 }
+
+// TODO: withLayersFor and withoutLayersFor as instance specific activation variants
