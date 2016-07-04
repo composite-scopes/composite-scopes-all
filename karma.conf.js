@@ -2,7 +2,7 @@
 // Generated on Mon May 02 2016 11:53:39 GMT+0200 (W. Europe Daylight Time)
 
 module.exports = function(config) {
-  config.set({
+  var configuration = {
 
     // base path that will be used to resolve all patterns (eg. files, exclude)
     basePath: '',
@@ -16,9 +16,9 @@ module.exports = function(config) {
     files: [
       'node_modules/babel-polyfill/dist/polyfill.js',
       'miniprototype.js',
-      'minibase.js',
-      'Layers.js',
+      'MiniBase.js',
       'Flatten.js',
+      'copv2/*.js',
       'tests/**/*Tests.js'
     ],
 
@@ -32,9 +32,10 @@ module.exports = function(config) {
     // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
     preprocessors: {
       'miniprototype.js': ['babel', 'commonjs'],
-      'minibase.js': ['babel', 'commonjs'],
+      'MiniBase.js': ['babel', 'commonjs'],
       'Layers.js': ['babel', 'commonjs'],
       'Flatten.js': ['babel', 'commonjs'],
+      'copv2/*.js': ['babel', 'commonjs'],
       'tests/**/*.js': ['babel', 'commonjs'],
     },
 
@@ -85,7 +86,14 @@ module.exports = function(config) {
 
     // start these browsers
     // available browser launchers: https://npmjs.org/browse/keyword/karma-launcher
-    browsers: ['Chrome', 'Firefox', 'IE', 'Safari', 'Opera'],
+    browsers: ['PhantomJS', 'Chrome', 'Firefox', 'IE', 'Safari', 'Opera'],
+    // see below for the browsers which are run on Travis CI
+    customLaunchers: {
+        Chrome_no_sandbox: {
+            base: 'Chrome',
+            flags: ['--no-sandbox'],
+        }
+    },
 
 
     // Continuous Integration mode
@@ -95,5 +103,9 @@ module.exports = function(config) {
     // Concurrency level
     // how many browser should be started simultaneous
     concurrency: Infinity
-  })
+  };
+  if (process.env.TRAVIS) {
+      configuration.browsers = ['Chrome_no_sandbox', 'Firefox'];
+  }
+  config.set(configuration);
 }

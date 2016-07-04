@@ -7,7 +7,9 @@
     "test": "tests"
   },
   "scripts": {
-    "test": "karma start --single-run",
+    "test": "npm run test-node && npm run test-karma",
+    "test-karma": "karma start --single-run",
+    "test-node": "mocha tests --compilers js:babel-core/register --require tests/globalChai.js",
     "test-chrome-only": "karma start --single-run --browsers Chrome",
     "test-continuously": "karma start",
     "test-continuously-chrome-only": "karma start --browsers Chrome",
@@ -43,8 +45,9 @@
     "karma-ie-launcher": "^0.2.0",
     "karma-mocha": "^0.2.2",
     "karma-opera-launcher": "^0.3.0",
+    "karma-phantomjs-launcher": "^1.0.0",
     "karma-safari-launcher": "^0.1.1",
     "mocha": "^2.4.5",
-    "requirejs": "^2.2.0"
+    "phantomjs-prebuilt": "^2.1.7"
   }
 }
