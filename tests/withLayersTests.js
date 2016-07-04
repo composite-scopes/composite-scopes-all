@@ -1,7 +1,7 @@
 'use strict';
 
 import { Scope } from '../copv2/scope.js';
-import { withLayers, withoutLayers } from '../copv2/withLayers.js';
+import { withLayers, withoutLayers, withLayersFor, withoutLayersFor } from '../copv2/withLayers.js';
 
 function getSpyOnActivate(partial) {
     return partial.activate = sinon.spy();
@@ -148,18 +148,47 @@ describe('withoutLayers', function() {
     });
 });
 
-describe('withoutLayers', function() {
+describe('withtLayersFor', function() {
 
     it('should remember previous state', () => {
         var l1 = new Scope(),
+            obj = 42,
             spy = sinon.spy();
 
-        withoutLayers([l1], () => {
-            expect(l1.isActive()).to.be.false;
+        withLayersFor([l1], [obj], () => {
+            expect(l1.isActiveFor(obj)).to.be.true;
             spy();
         });
 
-        expect(l1.isActive()).to.be.false;
+        expect(l1.isActiveFor(obj)).to.be.false;
         assert(spy.calledOnce);
     });
+
+    it('handles multiple layers and objects', () => {
+        var l1 = new Scope(),
+            l2 = new Scope(),
+            obj1 = 42,
+            obj2 = 17,
+            spy = sinon.spy();
+
+        var value = withLayersFor([l1, l2], [obj1, obj2], () => {
+            expect(l1.isActiveFor(obj1)).to.be.true;
+            expect(l1.isActiveFor(obj2)).to.be.true;
+            expect(l2.isActiveFor(obj1)).to.be.true;
+            expect(l2.isActiveFor(obj2)).to.be.true;
+            spy();
+            spy();
+            spy();
+            return 42;
+        });
+
+        expect(l1.isActiveFor(obj1)).to.be.false;
+        expect(l1.isActiveFor(obj2)).to.be.false;
+        expect(l2.isActiveFor(obj1)).to.be.false;
+        expect(l2.isActiveFor(obj2)).to.be.false;
+        assert(spy.calledThrice);
+        expect(value).to.equal(42);
+    });
+
+    // TODO: continue testing with nested activations
 });

@@ -45,3 +45,22 @@ export function withoutLayers(layers, callback) {
 }
 
 // TODO: withLayersFor and withoutLayersFor as instance specific activation variants
+export function withLayersFor(layers, objs, callback) {
+    memorizeState(layers);
+    try {
+        layers.forEach(l =>
+            objs.forEach(o =>
+                l.activateFor(o)));
+        return callback();
+    }
+    finally {
+        layers.forEach(l =>
+            objs.forEach(o =>
+                l.deactivateFor(o)));
+    }
+}
+
+export function withoutLayersFor(layers, objs, callback) {
+
+}
+
