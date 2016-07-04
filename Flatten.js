@@ -22,7 +22,7 @@
  */
 'use strict';
 
-import { default as cop } from 'copv2/Layers.js';
+import * as cop from 'Layers.js';
 
 class MethodManipulator {
   constructor () {
@@ -237,7 +237,7 @@ Object.assign(cop.Layer.prototype, {
         continue;
       }
       var prop = this[name];
-      if (prop._layered_object && !result.include(prop._layered_object)) {
+      if (prop._layered_object && !result.includes(prop._layered_object)) {
         result.push(prop._layered_object);
       }
     }

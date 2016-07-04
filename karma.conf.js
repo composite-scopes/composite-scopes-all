@@ -1,8 +1,8 @@
 // Karma configuration
-// Generated on Mon May 02 2016 11:53:39 GMT+0200 (W. Europe Daylight Time)
+// Generated on Thu Aug 06 2015 09:43:45 GMT+0200 (W. Europe Daylight Time)
 
 module.exports = function(config) {
-  var configuration = {
+  config.set({
 
     // base path that will be used to resolve all patterns (eg. files, exclude)
     basePath: '',
@@ -10,61 +10,64 @@ module.exports = function(config) {
 
     // frameworks to use
     // available frameworks: https://npmjs.org/browse/keyword/karma-adapter
-    frameworks: ['commonjs', 'mocha', 'chai'],
+    frameworks: ['mocha', 'requirejs', 'chai', 'sinon'],
+
 
     // list of files / patterns to load in the browser
     files: [
-      'node_modules/babel-polyfill/dist/polyfill.js',
-      'miniprototype.js',
-      'MiniBase.js',
-      'Flatten.js',
-      'copv2/*.js',
-      'tests/**/*Tests.js'
+      'src/external/system.src.js',
+      'src/external/babel-browser.js',
+      'vendor/regenerator-runtime.js',
+      {pattern: 'node_modules/**/*.js', included: false},
+      {pattern: 'node_modules/**/package.json', included: false},
+      {pattern: 'node_modules/chai/chai.js', included: false},
+      {pattern: 'node_modules/mocha/mocha.js', included: false},
+      {pattern: 'src/**/*.js*', included: false},
+      {pattern: 'swx-loader.js', included: false},
+      {pattern: 'test/**/*.js', included: false},
+      {pattern: 'tests/**/*.js', included: false},
+      {pattern: 'vendor/**/*.js', included: false},
+      {pattern: 'templates/**/*', included: false},
+      {pattern: 'test-main.js', included: false},
+      {pattern: 'src/external/focalStorage.js', included: false},
+      {pattern: 'module_import.js', included: false},
+      {pattern: 'Layers.js', included: false},
+      {pattern: 'contextjs.js', included: false},
+      {pattern: 'copv2/**/*.js', included: false},
+      'test-loader.js'
     ],
+
+    proxies: {
+      '/node_modules/': '/base/node_modules/',
+      '/node_modules/chai/chai.js': '/base/node_modules/chai/chai.js',
+      '/node_modules/mocha/mocha.js': '/base/node_modules/mocha/mocha.js',
+      '/src/': '/base/src/',
+      '/test/': '/base/test/',
+      '/tests/': '/base/test/',
+      '/templates/': '/base/templates/',
+      '/vendor/': '/base/vendor/',
+      '/swx-loader.js': '/base/swx-loader.js',
+      '/module_import.js': '/base/module_import.js',
+      '/Layers.js': '/base/Layers.js',
+      '/contextjs.js': '/base/contextjs.js',
+      '/copv2/': '/base/copv2/',
+    },
 
 
     // list of files to exclude
-    exclude: [
-    ],
-
+    // TODO: call github api from travis ci
+    exclude: process.env.TRAVIS ? ['test/github-api-test.js'] : [],
 
     // preprocess matching files before serving them to the browser
     // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
     preprocessors: {
-      'miniprototype.js': ['babel', 'commonjs'],
-      'MiniBase.js': ['babel', 'commonjs'],
-      'Layers.js': ['babel', 'commonjs'],
-      'Flatten.js': ['babel', 'commonjs'],
-      'copv2/*.js': ['babel', 'commonjs'],
-      'tests/**/*.js': ['babel', 'commonjs'],
     },
-
-    babelPreprocessor: {
-      options: {
-        presets: ['es2015'],
-        sourceMap: 'inline'
-      },
-      // filename: function (file) {
-      //   var lastSlash = file.originalPath.lastIndexOf('/');
-      //   var folder = file.originalPath.substring(0, lastSlash + 1);
-      //   var basename = file.originalPath.substring(lastSlash + 1);
-      //   return folder + 'es5/' + basename;
-      // },
-      sourceFileName: function (file) {
-        return file.originalPath;
-      }
-    },
-
-    commonjsPreprocessor: {
-      modulesRoot: '.'
-    },
-
 
 
     // test results reporter to use
     // possible values: 'dots', 'progress'
     // available reporters: https://npmjs.org/browse/keyword/karma-reporter
-    reporters: ['progress'],
+    reporters: ['progress', 'mocha'],
 
 
     // web server port
@@ -86,26 +89,27 @@ module.exports = function(config) {
 
     // start these browsers
     // available browser launchers: https://npmjs.org/browse/keyword/karma-launcher
-    browsers: ['PhantomJS', 'Chrome', 'Firefox', 'IE', 'Safari', 'Opera'],
-    // see below for the browsers which are run on Travis CI
-    customLaunchers: {
-        Chrome_no_sandbox: {
-            base: 'Chrome',
-            flags: ['--no-sandbox'],
-        }
-    },
+    browsers: ['Chrome'],
 
+    customLaunchers: {
+      Chrome_Travis_CI: {
+        base: 'Chrome',
+        flags: ['--no-sandbox']
+      },
+      ChromeCanary_Travis_CI: {
+        base: 'ChromeCanary',
+        flags: ['--no-sandbox']
+      },
+    },
 
     // Continuous Integration mode
     // if true, Karma captures browsers, runs the tests and exits
     singleRun: false,
 
-    // Concurrency level
-    // how many browser should be started simultaneous
-    concurrency: Infinity
-  };
-  if (process.env.TRAVIS) {
-      configuration.browsers = ['Chrome_no_sandbox', 'Firefox'];
+    browserNoActivityTimeout: 20000
+  });
+
+  if(process.env.TRAVIS) {
+    config.browsers = ['ChromeCanary_Travis_CI'];
   }
-  config.set(configuration);
-}
+};
