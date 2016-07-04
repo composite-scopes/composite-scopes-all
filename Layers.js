@@ -20,90 +20,23 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+'use strict';
 
+import { $A } from 'miniprototype.js';
+import { Global } from 'minibase.js'; // TODO: get rid of this
 
-// Non-Lively Compatibility
-if (!window.module) {
-    window.module = function() {
-        return {
-            requires: function() {return this},
-            toRun: function(func) {
-                func()
-            }
-        }
-    }
-    window.Config = {};
-    window.cop = {};
-    window.Global = window;
-
-
-
-Object.extend(Function.prototype, {
-
-	defaultCategoryName: 'default category',
-
-	subclass: function(/*... */) {
-		// Main method of the LK class system.
-
-		// {className} is the name of the new class constructor which this method synthesizes
-		// and binds to {className} in the Global namespace.
-		// Remaining arguments are (inline) properties and methods to be copied into the prototype
-		// of the newly created constructor.
-
-		// modified from prototype.js
-
-		var args = $A(arguments),
-			className = args.shift(),
-			targetScope = Global,
-			shortName = null;
-
-		if (className) {
-			targetScope = lively.Class.namespaceFor(className);
-			shortName = lively.Class.unqualifiedNameFor(className);
-		}  else {
-			shortName = "anonymous_" + (lively.Class.anonymousCounter++);
-			className = shortName;
-		}
-
-		var klass;
-		if (className && targetScope[shortName] && (targetScope[shortName].superclass === this)) {
-			// preserve the class to allow using the subclass construct in interactive development
-			klass = targetScope[shortName];
-		} else {
-			klass = lively.Class.newInitializer(shortName);
-			klass.superclass = this;
-			var protoclass = function() { }; // that's the constructor of the new prototype object
-			protoclass.prototype = this.prototype;
-			klass.prototype = new protoclass();
-			klass.prototype.constructor = klass;
-			klass.prototype.constructor.type = className; // KP: .name would be better but js ignores .name on anonymous functions
-			klass.prototype.constructor.displayName = className; // for debugging, because name can not be assigned
-			if (className) targetScope[shortName] = klass; // otherwise it's anonymous
-
-			// remember the module that contains the class def
-			if (Global.lively && lively.Module && lively.Module.current)
-				klass.sourceModule = lively.Module.current();
-		};
-
-		// the remaining args should be category strings or source objects
-		this.addMethods.apply(klass, args);
-
-		if (!klass.prototype.initialize)
-			klass.prototype.initialize = function () {};
-
-		return klass;
-	}
-});
-
+if (typeof window === 'undefined') {
+    window = this;
 }
 
 /*
  * COP Layers for JavaScript
  */
 
-module('cop.Layers').requires().toRun(function(thisModule) {
-
 /* Private Helpers for Development */
+
+export var Config = {};
+export var cop = {};
 
 Config.ignoredepricatedProceed = true;
 
@@ -194,10 +127,10 @@ Object.extend(cop, {
             layeredPropName = "_layered_" + layer.getName() + "_" + property;
         defs.__defineGetter__(property, function layeredGetter() {
             return this[layeredPropName] === undefined ? cop.proceed() : this[layeredPropName];
-        }.binds({layeredPropName: layeredPropName, baseValue: baseValue}));
+        }/*.binds({layeredPropName: layeredPropName, baseValue: baseValue})*/);
         defs.__defineSetter__(property, function layeredSetter(v) {
             this[layeredPropName] = v;
-        }.binds({layeredPropName: layeredPropName}));
+        }/*.binds({layeredPropName: layeredPropName})*/);
         cop.layerProperty(layer, object, property, defs);
     },
 
@@ -269,7 +202,7 @@ Object.extend(cop, {
             // log("look for superclass of: " + self.constructor)
             var superclass = self.constructor.superclass;
             if (superclass) {
-                foundClass = superclass;
+                var foundClass = superclass;
                 // log("layered function is not found in this partial method, lookup for my prototype?")
                 return cop.lookupLayeredFunctionForObject(superclass.prototype, layer, function_name, methodType);
             } else {
@@ -331,7 +264,7 @@ Object.extend(cop, {
             if (!base_function) {
                 // console.log("WARNING can't layer an non existent function" + function_name +" , so do nothing")
                 // return;
-                base_function = Functions.Null;
+                base_function = function () {};
             };
             cop.pvtMakeFunctionOrPropertyLayerAware(base_obj, function_name, base_function, undefined, isHidden)
     },
@@ -345,12 +278,12 @@ Object.extend(cop, {
         if (!getter) {
             // does not work when dealing with classes and instances...
             baseObj[propName] = baseObj[property]; // take over old value
-            getter = function() { return this[propName] }.binds({propName: propName});
+            getter = function() { return this[propName] }/*.bind({propName: propName})*/;
             baseObj.__defineGetter__(property, getter);
         };
         var setter = baseObj.__lookupSetter__(property);
         if (!setter) {
-            setter = function(value) { return this[propName] = value }.binds({propName: propName});
+            setter = function(value) { return this[propName] = value }/*.bind({propName: propName})*/;
             baseObj.__defineSetter__(property, setter);
         };
 
@@ -391,9 +324,13 @@ Object.extend(cop, {
     },
 
     uninstallLayersInObject: function(object) {
-        Functions.own(object).forEach(function(ea){
-            cop.makeFunctionLayerUnaware(object, ea)
-        })
+        for (let slotName in object) {
+            if (!object.hasOwnProperty(slotName)
+                    || typeof object[slotName] !== 'function')
+                continue;
+            var fn = object[slotName];
+            cop.makeFunctionLayerUnaware(object, slotName)
+        }
     },
 
     // cop.uninstallLayersInAllClasses()
@@ -410,6 +347,25 @@ Object.extend(cop, {
         return Object.values(optObject || Global).select(function(ea) { return ea instanceof Layer})
     }
 });
+
+/* TODO: get rid of this stub code, even though it is ES6 */
+class lively {
+}
+lively.Class = class Class {
+    static namespaceFor(name) {
+        let parts = name.split('.');
+        let context = Global;
+        for (let i = 0; i < parts.length - 1; i++) {
+            context = context[parts[i]];
+        }
+        return context;
+    }
+    static unqualifiedNameFor(name) {
+        let parts = name.split('.');
+        return parts[parts.length - 1];
+    }
+}
+/* end todo */
 
 /* PUPLIC COP  Layer Definition */
 Object.extend(cop, {
@@ -559,6 +515,7 @@ Object.extend(cop, {
 
 
 // Mark old ContextJS API as Depricated
+// TODO: correct the spelling mistake
 var markNamespaceEntryAsDepricated = function(newNamespace, newName, oldNamespace, oldName) {
     oldNamespace[oldName] = newNamespace[newName].wrap(function(proceed) {
         if (Config.throwErrorOnDepricated) throw new Error("DEPRICATED ERROR: " + oldName + " is depricated");
@@ -581,15 +538,15 @@ markNamespaceEntryAsDepricated(cop, "layerClassAndSubclasses", Global,  "layerCl
 // Class Definitions
 
 // TODO How to make this independend from the Lively Kernel class system?
-Object.subclass("Layer",
+export var Layer = Object.subclass("Layer",
 'initializing', {
     initialize: function(name, namespaceName) {
         this.name = name;
         this.namespaceName = namespaceName || 'Global';
         this.layeredFunctionsList = {};
 
-        if (Global.lively && lively.lang && lively.Module)
-            this.sourceModule = lively.Module.current();
+        // if (Global.lively && lively.lang && lively.Module)
+        //     this.sourceModule = lively.Module.current();
     },
 },
 'accessing', {
@@ -603,7 +560,8 @@ Object.subclass("Layer",
     layeredClasses: function() {
         return this.layeredObjects()
             .collect(function(ea) { return ea.constructor })
-            .select(function(ea) {return lively.Class.isClass(ea) })
+            // TODO: make this right again
+            .select(function(ea) {return { code: 'lively.Class.isClass(ea)' } })
     },
 
 
@@ -616,8 +574,8 @@ Object.subclass("Layer",
     remove: function() {
         // Deletes the LayerClass, but keeps the layered Functions.
         if (this.isGlobal()) this.beNotGlobal();
-        var ns = module(this.namespaceName);
-        delete ns[this.name];
+        // var ns = module(this.namespaceName);
+        // delete ns[this.name];
     },
     uninstall: function() {
         // Uninstalls just this layer, functions that are layered by other Layers will not be reset.
@@ -711,6 +669,7 @@ Object.extend(Layer, {
 
 /* Example implementation of a layerable object */
 Object.extend(Global, {LayerableObjectTrait: {}});
+export var LayerableObjectTrait = Global.LayerableObjectTrait;
 Object.extend(LayerableObjectTrait, {
     activeLayers: function() {
         var result = {withLayers: [], withoutLayers: []};
@@ -803,16 +762,16 @@ Object.extend(LayerableObjectTrait, {
     getWithoutLayers: function(layers) { return this.withoutLayers || [] },
 });
 
-Object.subclass("LayerableObject", LayerableObjectTrait);
+export var LayerableObject = Object.subclass("LayerableObject", LayerableObjectTrait);
 
-Object.subclass('COPError', {
+export var COPError = Object.subclass('COPError', {
     initialize: function(msg) {
         this.msg = msg
     },
     toString: function() { return "COP Error: " + this.msg },
 });
 
-Object.subclass("cop.PartialLayerComposition", {
+cop.PartialLayerComposition = Object.subclass("cop.PartialLayerComposition", {
     initialize: function(obj,  prototypeObject, functionName, baseFunction, methodType) {
         this.partialMethods = [baseFunction];
         var layers = cop.computeLayersFor(obj);
@@ -879,5 +838,3 @@ cop.resetLayerStack();
 
 if (cop.dynamicInlining)
     module('cop.Flatten').load(true);
-
-});
