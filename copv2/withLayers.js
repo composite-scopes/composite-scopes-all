@@ -22,6 +22,7 @@ function restoreState(layers) {
     });
 }
 
+// TODO: is this worth factoring into a template method (memorize, try finally and restore are shared across all four functions)
 export function withLayers(layers, callback) {
     memorizeState(layers);
     try {
@@ -73,7 +74,6 @@ function restoreInstanceState(layers) {
     });
 }
 
-// TODO: withLayersFor and withoutLayersFor as instance specific activation variants
 export function withLayersFor(layers, objs, callback) {
     memorizeInstanceState(layers, objs);
     try {
@@ -88,6 +88,15 @@ export function withLayersFor(layers, objs, callback) {
 }
 
 export function withoutLayersFor(layers, objs, callback) {
-
+    memorizeInstanceState(layers, objs);
+    try {
+        layers.forEach(l =>
+            objs.forEach(o =>
+                l.deactivateFor(o)));
+        return callback();
+    }
+    finally {
+        restoreInstanceState(layers);
+    }
 }
 
