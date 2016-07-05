@@ -85,4 +85,23 @@ describe('eventTransition', function() {
 
         // TODO: with removed listeners, the layer should then be usable with other
     });
+
+    testOnlyInBrowser('allows to react on consecutive events', () => {
+        var l1 = new Scope().activate(),
+            l2 = new Scope();
+
+        onEvent('click')
+            .transition([l1], [l2])
+            .transition([l2], [l1]);
+
+        document.documentElement.click();
+
+        expect(l1.isActive()).to.be.false;
+        expect(l2.isActive()).to.be.true;
+
+        document.documentElement.click();
+
+        expect(l1.isActive()).to.be.true;
+        expect(l2.isActive()).to.be.false;
+    });
 });
