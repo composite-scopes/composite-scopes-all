@@ -9,6 +9,7 @@ class Case {
         return this.from.every(layer => layer.isActive())
     }
 
+    // TODO: do not activate and immediately deactivate again, if a layer is in 'from' and 'to'
     applyTransition() {
         this.from.forEach(requiredLayer => requiredLayer.deactivate());
         this.to.forEach(resultingLayer => resultingLayer.activate());

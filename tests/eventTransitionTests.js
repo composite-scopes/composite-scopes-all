@@ -4,15 +4,6 @@ import { Scope } from '../copv2/scope.js';
 import onEvent from '../copv2/eventTransition.js';
 import testOnlyInBrowser from './testInBrowserHelper.js';
 
-class TestPartial {
-    constructor() {}
-    
-    activate() {}
-    deactivate() {}
-    activateFor() {}
-    deactivateFor() {}
-}
-
 describe('eventTransition', function() {
 
     // TODO: this test only run in browser environment currently
