@@ -44,9 +44,38 @@ export function withoutLayers(layers, callback) {
     }
 }
 
+const instanceStack = new Stack();
+
+function memorizeInstanceState(layers, objs) {
+    layerStack.push(layers.map(l => {
+        let objectStates = new Map();
+        objs.forEach(o => objectStates.set(o, l.isActiveFor(o)));
+
+        return objectStates;
+    }));
+}
+
+function restoreInstanceState(layers) {
+    let previouslyActivated = layerStack.top();
+    layerStack.pop();
+    layers.forEach((l, i) => {
+        previouslyActivated[i].forEach((previousstatus, obj) => {
+            if(previousstatus) {
+                if(!l.isActiveFor(obj)) {
+                    l.activateFor(obj);
+                }
+            } else {
+                if(l.isActiveFor(obj)) {
+                    l.deactivateFor(obj);
+                }
+            }
+        });
+    });
+}
+
 // TODO: withLayersFor and withoutLayersFor as instance specific activation variants
 export function withLayersFor(layers, objs, callback) {
-    memorizeState(layers);
+    memorizeInstanceState(layers, objs);
     try {
         layers.forEach(l =>
             objs.forEach(o =>
@@ -54,9 +83,7 @@ export function withLayersFor(layers, objs, callback) {
         return callback();
     }
     finally {
-        layers.forEach(l =>
-            objs.forEach(o =>
-                l.deactivateFor(o)));
+        restoreInstanceState(layers);
     }
 }
 

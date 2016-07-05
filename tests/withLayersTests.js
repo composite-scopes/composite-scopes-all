@@ -26,28 +26,6 @@ describe('withLayers', function() {
         expect(value).to.equal(42);
     });
 
-    it('should support nested activation', () => {
-        var l1 = new Scope(),
-            l2 = new Scope(),
-            spy = sinon.spy();
-
-        withLayers([l1, l2], () => {
-            expect(l1.isActive()).to.be.true;
-            expect(l2.isActive()).to.be.true;
-            withoutLayers([l2], () => {
-                expect(l1.isActive()).to.be.true;
-                expect(l2.isActive()).to.be.false;
-                spy();
-            });
-            expect(l1.isActive()).to.be.true;
-            expect(l2.isActive()).to.be.true;
-        });
-
-        expect(l1.isActive()).to.be.false;
-        expect(l2.isActive()).to.be.false;
-        assert(spy.calledOnce);
-    });
-
     it('should support nested withLayers', () => {
         var l1 = new Scope(),
             l2 = new Scope(),
@@ -148,6 +126,30 @@ describe('withoutLayers', function() {
     });
 });
 
+describe('interaction of withLayers and withoutLayers', function() {
+    it('should support nested activation', () => {
+        var l1 = new Scope(),
+            l2 = new Scope(),
+            spy = sinon.spy();
+
+        withLayers([l1, l2], () => {
+            expect(l1.isActive()).to.be.true;
+            expect(l2.isActive()).to.be.true;
+            withoutLayers([l2], () => {
+                expect(l1.isActive()).to.be.true;
+                expect(l2.isActive()).to.be.false;
+                spy();
+            });
+            expect(l1.isActive()).to.be.true;
+            expect(l2.isActive()).to.be.true;
+        });
+
+        expect(l1.isActive()).to.be.false;
+        expect(l2.isActive()).to.be.false;
+        assert(spy.calledOnce);
+    });
+});
+
 describe('withtLayersFor', function() {
 
     it('should remember previous state', () => {
@@ -191,4 +193,120 @@ describe('withtLayersFor', function() {
     });
 
     // TODO: continue testing with nested activations
+    it('should support nested withLayersFor', () => {
+        var l1 = new Scope(),
+            l2 = new Scope(),
+            obj1 = 42,
+            obj2 = 17,
+            spy = sinon.spy();
+
+        withLayersFor([l1], [obj1], () => {
+            expect(l1.isActiveFor(obj1)).to.be.true;
+            expect(l1.isActiveFor(obj2)).to.be.false;
+
+            withLayersFor([l1, l2], [obj2], () => {
+                expect(l1.isActiveFor(obj1)).to.be.true;
+                expect(l1.isActiveFor(obj2)).to.be.true;
+                expect(l2.isActiveFor(obj1)).to.be.false;
+                expect(l2.isActiveFor(obj2)).to.be.true;
+                spy();
+            });
+
+            expect(l1.isActiveFor(obj1)).to.be.true;
+            expect(l1.isActiveFor(obj2)).to.be.false;
+            expect(l2.isActiveFor(obj1)).to.be.false;
+            expect(l2.isActiveFor(obj2)).to.be.false;
+
+            withLayersFor([l1, l2], [obj1], () => {
+                expect(l1.isActiveFor(obj1)).to.be.true;
+                expect(l1.isActiveFor(obj2)).to.be.false;
+                expect(l2.isActiveFor(obj1)).to.be.true;
+                expect(l2.isActiveFor(obj2)).to.be.false;
+
+                spy();
+            });
+
+            expect(l1.isActiveFor(obj1)).to.be.true; // the important check
+            expect(l1.isActiveFor(obj2)).to.be.false;
+            expect(l2.isActiveFor(obj1)).to.be.false;
+            expect(l2.isActiveFor(obj2)).to.be.false;
+
+            spy();
+        });
+
+        expect(l1.isActiveFor(obj1)).to.be.false;
+        expect(l1.isActiveFor(obj2)).to.be.false;
+        expect(l2.isActiveFor(obj1)).to.be.false;
+        expect(l2.isActiveFor(obj2)).to.be.false;
+
+        assert(spy.calledThrice);
+    });
 });
+
+// TODO: finish withoutLayersFor
+describe('withoutLayers', function() {
+
+    xit('should remember previous state', () => {
+        var l1 = new Scope(),
+            spy = sinon.spy();
+
+        withoutLayers([l1], () => {
+            expect(l1.isActive()).to.be.false;
+            spy();
+        });
+
+        expect(l1.isActive()).to.be.false;
+        assert(spy.calledOnce);
+    });
+
+    xit('should remember the previous state of scopes', () => {
+        var l1 = new Scope(),
+            spy = sinon.spy();
+
+        withLayers([l1], () => {
+            withoutLayers([l1], () => {
+                expect(l1.isActive()).to.be.false;
+                spy();
+            });
+
+            expect(l1.isActive()).to.be.true;
+        });
+
+        expect(l1.isActive()).to.be.false;
+        assert(spy.calledOnce);
+    });
+
+    xit('should handle nested with- and withoutLayers', () => {
+        var l1 = new Scope(),
+            l2 = new Scope(),
+            spy = sinon.spy();
+
+        withoutLayers([l1], () => {
+            expect(l1.isActive()).to.be.false;
+            expect(l2.isActive()).to.be.false;
+
+            withLayers([l2], () => {
+                expect(l1.isActive()).to.be.false;
+                expect(l2.isActive()).to.be.true;
+
+                withoutLayers([l1, l2], () => {
+                    expect(l1.isActive()).to.be.false;
+                    expect(l2.isActive()).to.be.false;
+                    spy();
+                });
+
+                expect(l1.isActive()).to.be.false;
+                expect(l2.isActive()).to.be.true;
+            });
+
+            expect(l1.isActive()).to.be.false;
+            expect(l2.isActive()).to.be.false;
+        });
+
+        expect(l1.isActive()).to.be.false;
+        expect(l2.isActive()).to.be.false;
+        assert(spy.calledOnce);
+    });
+});
+
+// TODO: check interoperability of withLayers and withLayersFor
