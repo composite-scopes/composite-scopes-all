@@ -69,6 +69,36 @@ describe('instanceEventTransition', function() {
         expect(l2.isActiveFor(div)).to.be.true;
     });
 
+    testOnlyInBrowser('provides the dom element to the condition', () => {
+        var div1 = document.createElement('div'),
+            div2 = document.createElement('div'),
+            l1 = new Scope()
+                .activateFor(div1)
+                .activateFor(div2),
+            l2 = new Scope();
+        document.body.appendChild(div1);
+        document.body.appendChild(div2);
+
+        let eventTransition = onInstanceEvent('click', 'div', (event, element) => element === div2)
+            .transition([l1], [l2]);
+
+        div1.click();
+
+        // the click should have no effect, as the transition is not fulfilled
+        expect(l1.isActiveFor(div1)).to.be.true;
+        expect(l1.isActiveFor(div2)).to.be.true;
+        expect(l2.isActiveFor(div1)).to.be.false;
+        expect(l2.isActiveFor(div2)).to.be.false;
+
+        div2.click();
+        eventTransition.uninstall();
+
+        expect(l1.isActiveFor(div1)).to.be.true;
+        expect(l1.isActiveFor(div2)).to.be.false;
+        expect(l2.isActiveFor(div1)).to.be.false;
+        expect(l2.isActiveFor(div2)).to.be.true;
+    });
+
     testOnlyInBrowser('should allow to remove an event listener', () => {
         var div = document.createElement('div'),
             l1 = new Scope().activateFor(div),
