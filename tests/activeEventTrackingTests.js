@@ -77,4 +77,20 @@ describe('Active Event Tracking', function() {
     });
 
     // TODO: test two notifier on one object
+    testOnlyInBrowser('notifies multiple listeners', () => {
+        var div = document.createElement('div'),
+            spy1 = sinon.spy(),
+            spy2 = sinon.spy(),
+            notifier1 = notify('click', 'div', spy1),
+            notifier2 = notify('click', 'div', spy2);
+        document.body.appendChild(div);
+
+        div.click();
+
+        notifier1.uninstall();
+        notifier2.uninstall();
+
+        expect(spy1.called).to.be.true;
+        expect(spy2.called).to.be.true;
+    });
 });
