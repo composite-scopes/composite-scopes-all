@@ -45,7 +45,7 @@ class InstanceEventCapture {
     }
 
     uninstall() {
-        //this.notifier.uninstall();
+        this.notifier.uninstall();
 
         return this;
     }

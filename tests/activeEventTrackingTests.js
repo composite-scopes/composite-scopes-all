@@ -75,4 +75,6 @@ describe('Active Event Tracking', function() {
 
         notifier.uninstall();
     });
+
+    // TODO: test two notifier on one object
 });

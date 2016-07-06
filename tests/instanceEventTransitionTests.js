@@ -12,89 +12,103 @@ describe('instanceEventTransition', function() {
             l2 = new Scope();
         document.body.appendChild(div);
 
-        onInstanceEvent('click', 'div')
+        let eventTransition = onInstanceEvent('click', 'div')
             .transition([l1], [l2]);
 
         div.click();
+        eventTransition.uninstall();
 
         expect(l1.isActiveFor(div)).to.be.false;
         expect(l2.isActiveFor(div)).to.be.true;
     });
 
-    // TODO: continue here
-    xit('should select the first match on transition', () => {
-        var l1 = new Scope(),
-            l2 = new Scope().activate(),
+    testOnlyInBrowser('should select the first match on transition', () => {
+        var div = document.createElement('div'),
+            l1 = new Scope(),
+            l2 = new Scope().activateFor(div),
             l3 = new Scope();
+        document.body.appendChild(div);
 
-        onEvent('click')
+        let eventTransition = onInstanceEvent('click', 'div')
             .transition([l1], [l2])
             .transition([l2], [l1])
             .transition([l2], [l1, l3]);
 
-        document.documentElement.click();
+        div.click();
+        eventTransition.uninstall();
 
-        expect(l1.isActive()).to.be.true;
-        expect(l2.isActive()).not.to.be.true;
-        expect(l3.isActive()).not.to.be.true;
+        expect(l1.isActiveFor(div)).to.be.true;
+        expect(l2.isActiveFor(div)).to.be.false;
+        expect(l3.isActiveFor(div)).to.be.false;
     });
 
-    xit('should consider the condition when the appropriate event fires', () => {
-        var l1 = new Scope().activate(),
+    testOnlyInBrowser('should consider the condition when the appropriate event fires', () => {
+        var div = document.createElement('div'),
+            l1 = new Scope().activateFor(div),
             l2 = new Scope(),
+            callback = sinon.spy(),
             condition = false;
+        document.body.appendChild(div);
 
-        onEvent('click', () => { return condition})
+
+        let eventTransition = onInstanceEvent('click', 'div', () => { return condition})
             .transition([l1], [l2]);
 
-        document.documentElement.click();
+        div.click();
 
         // the click should have no effect, as the transition is not fulfilled
-        expect(l1.isActive()).to.be.true;
-        expect(l2.isActive()).not.to.be.true;
+        expect(l1.isActiveFor(div)).to.be.true;
+        expect(l2.isActiveFor(div)).to.be.false;
 
         condition = true;
 
-        document.documentElement.click();
+        div.click();
+        eventTransition.uninstall();
 
-        expect(l1.isActive()).not.to.be.true;
-        expect(l2.isActive()).to.be.true;
+        expect(l1.isActiveFor(div)).to.be.false;
+        expect(l2.isActiveFor(div)).to.be.true;
     });
 
-    xit('should allow to remove an event listener', () => {
-        var l1 = new Scope().activate(),
+    testOnlyInBrowser('should allow to remove an event listener', () => {
+        var div = document.createElement('div'),
+            l1 = new Scope().activateFor(div),
             l2 = new Scope(),
             callback = sinon.spy();
+        document.body.appendChild(div);
 
-        onEvent('click', callback)
+        onInstanceEvent('click', 'div', callback)
             .transition([l1], [l2])
             .uninstall();
 
-        document.documentElement.click();
+        div.click();
 
-        expect(callback.called).not.to.be.true;
-        expect(l1.isActive()).to.be.true;
-        expect(l2.isActive()).not.to.be.true;
+        expect(callback.called).to.be.false;
+        expect(l1.isActiveFor(div)).to.be.true;
+        expect(l2.isActiveFor(div)).to.be.false;
 
         // TODO: with removed listeners, the layer should then be usable with other
     });
 
-    xit('allows to react on consecutive events', () => {
-        var l1 = new Scope().activate(),
-            l2 = new Scope();
+    testOnlyInBrowser('allows to react on consecutive events', () => {
+        var div = document.createElement('div'),
+            l1 = new Scope().activateFor(div),
+            l2 = new Scope(),
+            callback = sinon.spy();
+        document.body.appendChild(div);
 
-        onEvent('click')
+        let eventTransition = onInstanceEvent('click', 'div')
             .transition([l1], [l2])
             .transition([l2], [l1]);
 
-        document.documentElement.click();
+        div.click();
 
-        expect(l1.isActive()).to.be.false;
-        expect(l2.isActive()).to.be.true;
+        expect(l1.isActiveFor(div)).to.be.false;
+        expect(l2.isActiveFor(div)).to.be.true;
 
-        document.documentElement.click();
+        div.click();
+        eventTransition.uninstall();
 
-        expect(l1.isActive()).to.be.true;
-        expect(l2.isActive()).to.be.false;
+        expect(l1.isActiveFor(div)).to.be.true;
+        expect(l2.isActiveFor(div)).to.be.false;
     });
 });
