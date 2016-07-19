@@ -1,8 +1,8 @@
 {
-  "name": "contextjs",
-  "version": "2.0.0",
-  "description": "Context Oriented Programming (COP) for ECMAScript 6",
-  "main": "contextjs.js",
+  "name": "composite-scopes-all",
+  "version": "1.0.0",
+  "description": "Context-oriented programming beyond partial behavior",
+  "main": "index.js",
   "directories": {
     "test": "tests"
   },
@@ -18,27 +18,29 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/LivelyKernel/ContextJS.git"
+    "url": "git+https://github.com/composite-scopes/composite-scopes-all.git"
   },
   "keywords": [
     "COP",
     "Context",
     "Oriented",
-    "Programming"
+    "Programming",
+    "active",
+    "reactive",
+    "event",
+    "style",
+    "css"
   ],
-  "author": "HPI Software Architecture Group (https://github.com/LivelyKernel)",
-  "contributors": [
-    "Jens Lincke <jens.lincke@hpi.de>",
-    "Stefan Lehmann <stefan.lehmann@student.hpi.uni-potsdam.de>",
-    "Robert Krahn <robert.krahn@gmail.com>",
-    "Jakob Reschke <jakres@gmail.com>",
-    "Marianne Thieffry <marianne.thieffry@gmail.com>"
-  ],
+  "author": {
+    "name" : "Stefan Ramson",
+    "email" : "stefan.ramson@gmail.com",
+    "url" : "http://onsetsu.github.io/"
+  },
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/LivelyKernel/ContextJS/issues"
+    "url": "https://github.com/composite-scopes/composite-scopes-all/issues"
   },
-  "homepage": "https://github.com/LivelyKernel/ContextJS#readme",
+  "homepage": "https://github.com/composite-scopes/composite-scopes-all#readme",
   "devDependencies": {
     "babel-core": "^6.7.7",
     "babel-plugin-array-includes": "^2.0.3",

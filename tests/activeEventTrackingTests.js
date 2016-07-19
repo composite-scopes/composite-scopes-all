@@ -76,7 +76,6 @@ describe('Active Event Tracking', function() {
         notifier.uninstall();
     });
 
-    // TODO: test two notifier on one object
     testOnlyInBrowser('notifies multiple listeners', () => {
         var div = document.createElement('div'),
             spy1 = sinon.spy(),
