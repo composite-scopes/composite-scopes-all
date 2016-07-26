@@ -1,6 +1,6 @@
 'use strict';
 
-import { Scope, Partial, COMPOSE_ALL, COMPOSE_ANY, COMPOSE_LAST } from '../copv2/scope.js';
+import { Scope, Partial, COMPOSE_ALL, COMPOSE_ANY, COMPOSE_LAST } from '../src/copv2/scope.js';
 
 // TODO: install spies to __method__
 class SpyPartial extends Partial {
