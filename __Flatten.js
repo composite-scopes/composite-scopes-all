@@ -22,7 +22,7 @@
  */
 'use strict';
 
-import * as cop from 'Layers.js';
+import * as cop from 'src/copv2/Layers.js';
 
 class MethodManipulator {
   constructor () {

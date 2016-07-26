@@ -22,9 +22,9 @@
  */
 'use strict';
 
-import '../module_import.js';
-import * as cop from '../Layers.js';
-import { LayerableObject } from '../Layers.js';
+import '../src/copv2/module_import.js';
+import * as cop from '../src/copv2/Layers.js';
+import { LayerableObject } from '../src/copv2/Layers.js';
 
 const assert = chai.assert;
 

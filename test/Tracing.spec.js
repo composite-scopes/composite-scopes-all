@@ -1,4 +1,4 @@
-import * as cop from '../Layers.js';
+import * as cop from '../src/copv2/Layers.js';
 
 function TestCase() {}; // TODO: get rid of this
 TestCase.subclass = function () {

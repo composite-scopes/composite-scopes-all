@@ -21,7 +21,7 @@
  * THE SOFTWARE.
  */
 
-import * as cop from 'Layers'
+import * as cop from 'src/copv2/Layers'
 
 export function layerClass(layer, constructor, definitions) {
     return layer.refineClass(constructor, definitions);
