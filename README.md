@@ -9,7 +9,7 @@ As npm for Node.js:
 $ npm install composite-scopes-all --save
 ```
 
-Or download the [bundle](https://raw.githubusercontent.com/onsetsu/composite-scopes-all/master/composite-scopes-all.js) file.
+Or download the [bundle](https://raw.githubusercontent.com/onsetsu/composite-scopes-all/master/dist/composite-scopes-all.js) file.
 
 ## Building
 

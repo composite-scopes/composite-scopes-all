@@ -33,6 +33,7 @@ module.exports = function (config) {
         plugins: [
             'karma-chrome-launcher',
             'karma-chai',
+            'karma-sinon',
             'karma-mocha',
             'karma-sourcemap-loader',
             'karma-webpack',
