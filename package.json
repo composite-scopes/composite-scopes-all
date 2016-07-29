@@ -92,6 +92,7 @@
     "webpack-config": "^5.2.1"
   },
   "dependencies": {
+    "contextjs": "^2.0.0",
     "stack-es2015-modules": "^1.1.0"
   }
 }
