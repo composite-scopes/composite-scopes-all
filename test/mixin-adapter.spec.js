@@ -53,5 +53,35 @@ describe('Mixin Adapter', () => {
         expect(obj3.getValue()).to.equal(3);
     });
 
+    it('refining static methods', () => {
+        class ClassToRefine {
+            static get value() {
+                return 17;
+            }
+            static primitiveGetter() {
+                return this.value;
+            }
+            static getValue() {
+                return this.primitiveGetter();
+            }
+        }
+
+        let dynamicMixin = mixin().refineObject(ClassToRefine, {
+            getValue: function() {
+                return 42 + proceed();
+            }
+        });
+
+        expect(ClassToRefine.getValue()).to.equal(17);
+
+        dynamicMixin.activate();
+
+        expect(ClassToRefine.getValue()).to.equal(42 + 17);
+
+        dynamicMixin.deactivate();
+
+        expect(ClassToRefine.getValue()).to.equal(17);
+    });
+
     xit('instance-specific layer activation', () => {});
 });
