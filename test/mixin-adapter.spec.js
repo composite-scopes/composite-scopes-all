@@ -83,8 +83,34 @@ describe('Mixin Adapter', () => {
         expect(ClassToRefine.getValue()).to.equal(17);
     });
 
-    // TODO: test refine class
-    xit('refineClass', () => {
+    it('refineClass', () => {
+        class ClassToRefine {
+            getValue() {
+                return 17;
+            }
+        }
+
+        let obj1 = new ClassToRefine(),
+            obj2 = new ClassToRefine();
+
+        let dynamicMixin = mixin().refineClass(ClassToRefine, {
+            getValue: function() {
+                return 42 + proceed();
+            }
+        });
+
+        expect(obj1.getValue()).to.equal(17);
+        expect(obj2.getValue()).to.equal(17);
+
+        dynamicMixin.activate();
+
+        expect(obj1.getValue()).to.equal(42 + 17);
+        expect(obj2.getValue()).to.equal(42 + 17);
+
+        dynamicMixin.deactivate();
+
+        expect(obj1.getValue()).to.equal(17);
+        expect(obj2.getValue()).to.equal(17);
     });
 
     it('instance-specific layer activation', () => {
@@ -96,7 +122,7 @@ describe('Mixin Adapter', () => {
 
         let obj1 = new ClassToRefine(),
             obj2 = new ClassToRefine(),
-            instanceSpecificMixin = mixin().refineActivatedInstancesOf(ClassToRefine, {
+            instanceSpecificMixin = mixin().refineActiveInstances(ClassToRefine, {
                 getValue: function() {
                     return 42 + proceed();
                 }

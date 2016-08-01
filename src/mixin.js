@@ -1,16 +1,9 @@
-// TODO: an adapter to ContextJS 2.0
 import { Partial } from './copv2/scope.js';
 import * as cop from "contextjs/lib/Layers";
 
 export { proceed } from "contextjs";
 
 function applyLayerableObjectTraitTo(klass) {
-    // console.log(cop.LayerableObjectTrait);
-    // console.log('------------');
-    // Object.keys(cop.LayerableObjectTrait.prototype).forEach(x=>console.log(x));
-    // console.log('------------');
-    // Object.keys(klass).forEach(x=>console.log(x));
-
     if(klass.prototype.activeLayers) { return; }
 
     // TODO: check why this can't simply be Object.assign(klass.prototype, cop.LayerableObjectTrait.prototype);
@@ -53,7 +46,7 @@ export class Mixin extends Partial {
 
         return this;
     }
-    refineActivatedInstancesOf(klass, ...rest) {
+    refineActiveInstances(klass, ...rest) {
         this._instanceSpecificLayer.refineClass(klass, ...rest);
         applyLayerableObjectTraitTo(klass);
 
