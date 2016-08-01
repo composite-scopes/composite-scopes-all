@@ -1,7 +1,7 @@
 'use strict';
 
-import { Scope } from '../src/copv2/scope.js';
-import onInstanceEvent from '../src/copv2/instanceEventTransition.js';
+import { Scope } from '../src/scope.js';
+import onInstanceEvent from '../src/instanceEventTransition.js';
 import testOnlyInBrowser from './testInBrowserHelper.js';
 
 describe('instanceEventTransition', function() {

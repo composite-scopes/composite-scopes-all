@@ -1,6 +1,6 @@
 'use strict';
 
-import notify from '../src/copv2/activeEventTracking.js';
+import notify from '../src/activeEventTracking.js';
 import testOnlyInBrowser from './testInBrowserHelper.js';
 
 describe('Active Event Tracking', function() {

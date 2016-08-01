@@ -1,4 +1,4 @@
-import { Partial } from './copv2/scope.js';
+import { Partial } from './scope.js';
 import * as cop from "contextjs/lib/Layers";
 
 export { proceed } from "contextjs";

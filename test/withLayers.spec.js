@@ -1,7 +1,7 @@
 'use strict';
 
-import { Scope } from '../src/copv2/scope.js';
-import { withLayers, withoutLayers, withLayersFor, withoutLayersFor } from '../src/copv2/withLayers.js';
+import { Scope } from '../src/scope.js';
+import { withLayers, withoutLayers, withLayersFor, withoutLayersFor } from '../src/withLayers.js';
 
 function getSpyOnActivate(partial) {
     return partial.activate = sinon.spy();
