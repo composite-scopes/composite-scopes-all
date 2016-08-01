@@ -4,7 +4,7 @@ import mixin, { proceed } from '../src/mixin.js';
 
 describe('Mixin Adapter', () => {
 
-    it('basic adapter', () => {
+    it('basic refineObject', () => {
         let obj = {
             value: 17,
             getValue: function() {
@@ -29,7 +29,7 @@ describe('Mixin Adapter', () => {
         expect(obj.getValue()).to.equal(17);
     });
 
-    it('overlapping mixins', () => {
+    it('overlapping mixins (refineObject)', () => {
         let obj1 = { getValue: () => 1 },
             obj2 = { getValue: () => 2 },
             obj3 = { getValue: () => 3 },
@@ -83,5 +83,41 @@ describe('Mixin Adapter', () => {
         expect(ClassToRefine.getValue()).to.equal(17);
     });
 
-    xit('instance-specific layer activation', () => {});
+    // TODO: test refine class
+    xit('refineClass', () => {
+    });
+
+    it('instance-specific layer activation', () => {
+        class ClassToRefine {
+            getValue() {
+                return 17;
+            }
+        }
+
+        let obj1 = new ClassToRefine(),
+            obj2 = new ClassToRefine(),
+            instanceSpecificMixin = mixin().refineActivatedInstancesOf(ClassToRefine, {
+                getValue: function() {
+                    return 42 + proceed();
+                }
+            });
+
+        expect(obj1.getValue()).to.equal(17);
+        expect(obj2.getValue()).to.equal(17);
+
+        instanceSpecificMixin.activateFor(obj1);
+
+        expect(obj1.getValue()).to.equal(42 + 17);
+        expect(obj2.getValue()).to.equal(17);
+
+        instanceSpecificMixin.activateFor(obj2);
+
+        expect(obj1.getValue()).to.equal(42 + 17);
+        expect(obj2.getValue()).to.equal(42 + 17);
+
+        instanceSpecificMixin.deactivateFor(obj1);
+
+        expect(obj1.getValue()).to.equal(17);
+        expect(obj2.getValue()).to.equal(42 + 17);
+    });
 });
