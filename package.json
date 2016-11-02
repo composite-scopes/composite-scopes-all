@@ -40,9 +40,11 @@
   },
   "homepage": "https://github.com/composite-scopes/composite-scopes-all#readme",
   "devDependencies": {
+    "aexpr-interpretation": "^1.1.1",
     "babel-core": "^6.7.7",
     "babel-loader": "^6.2.4",
     "babel-plugin-array-includes": "^2.0.3",
+    "babel-plugin-locals": "^1.0.1",
     "babel-plugin-transform-class-properties": "^6.6.0",
     "babel-plugin-transform-runtime": "^6.9.0",
     "babel-polyfill": "^6.8.0",
@@ -92,6 +94,7 @@
     "webpack-config": "^5.2.1"
   },
   "dependencies": {
+    "aexpr-trigger": "^1.1.0",
     "contextjs": "^2.0.0",
     "stack-es2015-modules": "^1.1.0"
   }
