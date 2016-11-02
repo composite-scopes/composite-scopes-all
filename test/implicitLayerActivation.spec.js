@@ -60,6 +60,40 @@ describe('Implicit Layer Activation', function() {
         expect(l2.isActive()).to.be.true;
     });
 
+    it('deactivating an immediately activated layer', () => {
+        var obj = { prop: 42},
+            layer = new Scope();
+
+        activeWhile(layer, aexpr(() => obj.prop >= 33, locals));
+
+        expect(layer.isActive()).to.be.true;
+
+        obj.prop = 17;
+
+        expect(layer.isActive()).to.be.false;
+    });
+
+    it('jump between active and inactive', () => {
+        var obj = { prop: 42},
+            layer = new Scope();
+
+        activeWhile(layer, aexpr(() => obj.prop >= 33, locals));
+        expect(layer.isActive()).to.be.true;
+
+        obj.prop = 17;
+        expect(layer.isActive()).to.be.false;
+
+        obj.prop = 42;
+        expect(layer.isActive()).to.be.true;
+
+        obj.prop = 17;
+        obj.prop = 0;
+        expect(layer.isActive()).to.be.false;
+
+        obj.prop = 42;
+        expect(layer.isActive()).to.be.true;
+    });
+
     // TODO: mark the layer's activation state as determined by a condition
     // as such it cannot be easily modified by e.g. global activation!
     // TODO: we have to find out, what the most natural semantic are here
