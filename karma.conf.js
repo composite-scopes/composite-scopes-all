@@ -22,7 +22,7 @@ module.exports = function (config) {
                 ]
             },
             ChromeCanary_Travis_CI_large_no_sandbox: {
-                base: 'Chrome',
+                base: 'ChromeCanary',
                 flags: [
                     '--window-size=1100,600',
                     '--window-position=-0,0',
